@@ -5,15 +5,24 @@ description = ""
 authors = ["Raimo Jostov <sanruumou@gmail.com>"]
 readme = "README.md"
 
+
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11,<3.13"
 pathspec = "^0.12.1"
 colorama = "^0.4.6"
 colorlog = "^6.9.0"
 fuzzywuzzy = "^0.18.0"
 python-levenshtein = "^0.26.1"
 pyttsx3 = "^2.98"
-SpeechRecognition = "^3.14.1"
+
+spacy = "^3.8.4"
+vadersentiment = "^3.3.2"
+transformers = "^4.48.2"
+speechrecognition = "^3.14.1"
+whisper = "^1.1.10"
+gtts = "^2.5.4"
+langdetect = "^1.0.9"
+poetry-core = "^2.0.1"
 
 [tool.poetry.scripts]
 sanruum = "sanruum.main:main"
@@ -32,7 +41,12 @@ check_untyped_defs = true      # Check even functions without type hints
 show_error_codes = true        # Display the error codes for more precise troubleshooting
 warn_unused_ignores = true     # Warn if you have unused `# type: ignore`
 warn_return_any = true         # Warn about functions that return `Any`
-warn_incompatible_signature = true  # Warn if the function signature is incompatible with the base class (useful for OOP)
+
+
+[tool.black]
+line-length = 88
+target-version = ['py311']  # Adjust for the version you're using
+
 
 [build-system]
 requires = ["poetry-core"]

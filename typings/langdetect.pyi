@@ -1,0 +1,3 @@
+# typings/langdetect.pyi
+
+def detect(text: str) -> str: ...
