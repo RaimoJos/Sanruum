@@ -1,3 +1,4 @@
+# sanruum\ai_core\speech\speech_recognition.py
 import speech_recognition as sr
 import whisper
 
@@ -13,10 +14,11 @@ else:
 
 
 class SpeechRecognition:
-    def __init__(self, engine: str = "whisper") -> None:
+    def __init__(self, engine: str = "whisper", timeout: int = 5) -> None:
         self.engine: str = engine
         self.recognizer: sr.Recognizer = sr.Recognizer()
         self.microphone: sr.Microphone = sr.Microphone()
+        self.timeout = timeout  # Timeout after X seconds
 
         if self.engine == "whisper":
             self.model = whisper.load_model("base")
@@ -25,7 +27,14 @@ class SpeechRecognition:
         """Capture voice input and convert to text using the selected engine."""
         with self.microphone as source:
             print("Listening...")
-            audio: sr.AudioData = self.recognizer.listen(source)
+            try:
+                audio: sr.AudioData = self.recognizer.listen(source, timeout=self.timeout)
+            except sr.WaitTimeoutError:
+                logger.error("Listening timed out. No speech detected.")
+                return ""
+            except Exception as e:
+                logger.error(f"Error during listening: {e}")
+                return ""
 
         if self.engine == "google":
             return self._recognize_google(audio)

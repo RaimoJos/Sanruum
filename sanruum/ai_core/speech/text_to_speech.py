@@ -1,4 +1,6 @@
+# sanruum\ai_core\speech\text_to_speech.py
 import os
+import tempfile
 from typing import Optional, Any
 
 import gtts
@@ -34,8 +36,12 @@ class TextToSpeech:
             self.speaker.runAndWait()
 
     def _speak_gtts(self, text: str) -> None:
-        """Google TTS (Generates audio file and plays it."""
+        """Google TTS (Generates audio file and plays it)."""
         tts = gtts.gTTS(text, lang=self.language)
-        filename = "tts_output.mp3"
-        tts.save(filename)
-        os.system(f"mpg321 {filename}")
+        # Create a temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as temp_file:
+            filename = temp_file.name
+            tts.save(filename)
+            os.system(f"mpg321 {filename}")
+            # Cleanup the temporary file after playing it
+            os.remove(filename)

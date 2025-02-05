@@ -1,6 +1,5 @@
 import random
 import traceback
-from typing import Optional
 
 from sanruum.ai_core.config import RESPONSES, PERSONALITY_MODE
 from sanruum.ai_core.memory import AIMemory
@@ -16,29 +15,33 @@ class AIResponse:
         self.faq = FAQHandler()
 
     def get_response(self, user_input: str) -> str:
-        """Generates a response based on user input using FAQ, AIProcessor, and fallback handling."""
+        """Generates a response based on user input, including learning from new data."""
         try:
-            user_input = user_input.strip().lower()  # Normalize input
-            logger.info(f"📝 User Input Received: {user_input}")
+            user_input = user_input.strip().lower()
+            logger.info(f"📝 User Input: {user_input}")
 
-            # ✅ Check if FAQ has an answer
-            faq_answer: Optional[str] = self.faq.get_answer(user_input)
-            if faq_answer and faq_answer != "I'm sorry, I couldn't find an answer.":
-                logger.debug(f"📚 FAQ Matched: {faq_answer}")
-                self.memory.store_message("ai", faq_answer)
+            # 1️⃣ Memory Lookup
+            if (known_info := self.memory.find_relevant_knowledge(user_input)):
+                logger.info(f"📖 Retrieved from Memory: {known_info}")
+                return known_info
+
+            # 2️⃣ FAQ System Check
+            if (
+                    faq_answer := self.faq.get_answer(
+                        user_input)) and faq_answer != "I'm sorry, I couldn't find an answer.":
+                self.memory.store_knowledge(user_input, faq_answer)
                 return faq_answer
 
-            # ✅ Process AI logic if FAQ did not match
-            ai_response: Optional[str] = self.processor.process_input(user_input)
-            if ai_response is not None:
-                logger.info(f"🤖 AI Response Generated: {ai_response}")
-                self.memory.store_message("ai", ai_response)
+            # 3️⃣ Process AI Logic
+            if (ai_response := self.processor.process_input(user_input)):
+                self.memory.store_knowledge(user_input, ai_response)
                 return ai_response
 
-            # ✅ Use a fallback response if nothing else works
-            fallback_response: str = random.choice(
-                RESPONSES.get(PERSONALITY_MODE, {}).get("fallback", ["I don't know."]))
-            logger.warning(f"⚠️ Fallback Response Used: {fallback_response}")
+            # 4️⃣ Fallback Response
+            fallback_response = random.choice(
+                RESPONSES.get(PERSONALITY_MODE, {}).get("fallback", ["I don't know."])
+            )
+            self.memory.store_knowledge(user_input, fallback_response)
             return fallback_response
 
         except Exception as e:

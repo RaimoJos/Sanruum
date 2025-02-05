@@ -1,3 +1,4 @@
+# sanruum\faq_handler.py
 import json
 from typing import Optional
 
@@ -52,6 +53,7 @@ class FAQHandler:
                 answers.append(answer)
             else:
                 logger.debug(f"❌ No suitable match found for: '{question}' (Score: {score})")
-                answers.append("I'm not sure about that. Would you like me to look it up?")
+                answers.append("I'm not sure about that. Would you like me to help you find more information?")
 
-        return "\n".join(answers) if answers else "I'm sorry, I couldn't find an answer."
+        return "\n".join(
+            answers) if answers else "Sorry, I couldn't find an answer. Would you like to ask something else?"

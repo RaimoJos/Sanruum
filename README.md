@@ -3,7 +3,6 @@
 ## Project Structure
 
 <!-- START_TREE -->
-
 ```
 sanruum/
 ├── .git/
@@ -12,13 +11,18 @@ sanruum/
 ├── .mypy_cache/
 ├── .treeignore
 ├── README.md
+├── STATS.md
 ├── data/
+│   ├── ai_memory.json
 │   ├── faq.json
+│   ├── intents.json
 │   ├── responses.json
 │   ├── session_history.json
+│   ├── session_history.json.bak
 │   └── user_memory/
 ├── logs/
 ├── pyproject.toml
+├── qodana.yaml
 ├── requirements.txt
 ├── sanruum/
 │   ├── __init__.py
@@ -36,17 +40,20 @@ sanruum/
 │   │       ├── speech_config.py
 │   │       ├── speech_recognition.py
 │   │       └── text_to_speech.py
+│   ├── ai_system.py
 │   ├── constants.py
 │   ├── faq_handler.py
 │   ├── main.py
 │   └── utils/
 │       ├── __init__.py
 │       ├── audio_utils.py
-│       └── logger.py
+│       ├── logger.py
+│       └── web_search.py
 ├── scripts/
-│   └── generate_tree.py
+│   ├── add_filename.py
+│   ├── generate_tree.py
+│   └── update_readme_project_info.py
 └── typings/
     └── langdetect.pyi
 ```
-
 <!-- END_TREE -->

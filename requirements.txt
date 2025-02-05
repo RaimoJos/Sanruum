@@ -10,3 +10,7 @@ fuzzywuzzy~=0.18.0
 pathspec~=0.12.1
 colorama~=0.4.6
 pyannote.audio~=3.3.2
+requests~=2.32.3
+beautifulsoup4~=4.13.3
+torch~=2.6.0
+pytz~=2025.1

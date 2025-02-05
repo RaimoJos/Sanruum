@@ -1,3 +1,4 @@
+# scripts\generate_tree.py
 import argparse
 import os
 import sys
