@@ -28,7 +28,9 @@ class SpeechRecognition:
         with self.microphone as source:
             print("Listening...")
             try:
-                audio: sr.AudioData = self.recognizer.listen(source, timeout=self.timeout)
+                audio: sr.AudioData = self.recognizer.listen(
+                    source, timeout=self.timeout
+                )
             except sr.WaitTimeoutError:
                 logger.error("Listening timed out. No speech detected.")
                 return ""
@@ -51,7 +53,9 @@ class SpeechRecognition:
             logger.info(f"Google Speech Recognition thinks you said: {text}")
             return text
         except sr.UnknownValueError:
-            logger.error("Google Speech Recognition could not understand the audio")
+            logger.error(
+                "Google Speech Recognition could not understand the audio"
+            )
             return ""
         except sr.RequestError as e:
             logger.error(f"Google Speech Recognition service error: {e}")

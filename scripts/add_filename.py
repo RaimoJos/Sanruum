@@ -12,12 +12,14 @@ def add_filename_to_file(filepath):
     new_comment = f"# {relative_path}\n"
 
     # Open the file and read its contents
-    with open(filepath, 'r', encoding='utf-8') as file:
+    with open(filepath, "r", encoding="utf-8") as file:
         content = file.readlines()
 
     # Check if the first line already contains a comment with the filename
     if content and content[0].startswith("#"):
-        if content[0].strip() != new_comment.strip():  # If the comment is different, add it
+        if (
+                content[0].strip() != new_comment.strip()
+        ):  # If the comment is different, add it
             content.insert(0, new_comment)  # Insert the new comment at the top
             print(f"Comment added to: {filepath}")
         else:
@@ -28,7 +30,7 @@ def add_filename_to_file(filepath):
         print(f"Comment added to: {filepath}")
 
     # Write the modified content back to the file
-    with open(filepath, 'w', encoding='utf-8') as file:
+    with open(filepath, "w", encoding="utf-8") as file:
         file.writelines(content)
 
 

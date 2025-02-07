@@ -1,0 +1,29 @@
+{
+  "intents": [
+    {
+      "name": "greeting",
+      "patterns": [
+        "hello",
+        "hi",
+        "hey"
+      ],
+      "response": "Hello! How can I assist you today?"
+    },
+    {
+      "name": "help",
+      "patterns": [
+        "how can you help",
+        "what can you do"
+      ],
+      "response": "I can assist with AI automation, voice AI, and business solutions."
+    },
+    {
+      "name": "python_info",
+      "patterns": [
+        "what is python",
+        "explain python"
+      ],
+      "response": "Python is a powerful programming language used for AI, automation, and web development."
+    }
+  ]
+}

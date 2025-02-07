@@ -25,12 +25,28 @@ init(autoreset=True)
 
 # Define default exclusion patterns
 DEFAULT_IGNORE_PATTERNS = [
-    ".git/", "__pycache__/", "*.pyc", "venv/", "env/", ".venv/", "node_modules/", ".vscode/", ".idea/", ".DS_Store",
-    "Thumbs.db", "logs/", "*.log", "tmp/", "temp/", "secret_config.yaml"
+    ".git/",
+    "__pycache__/",
+    "*.pyc",
+    "venv/",
+    "env/",
+    ".venv/",
+    "node_modules/",
+    ".vscode/",
+    ".idea/",
+    ".DS_Store",
+    "Thumbs.db",
+    "logs/",
+    "*.log",
+    "tmp/",
+    "temp/",
+    "secret_config.yaml",
 ]
 
 
-def load_ignore_patterns(ignore_files: list[Path], default_patterns: list[str]) -> pathspec.PathSpec | None:
+def load_ignore_patterns(
+        ignore_files: list[Path], default_patterns: list[str]
+) -> pathspec.PathSpec | None:
     """
     Load ignore patterns from default patterns and a list of ignore files.
 
@@ -42,18 +58,27 @@ def load_ignore_patterns(ignore_files: list[Path], default_patterns: list[str]) 
 
     for ignore_file in ignore_files:
         if ignore_file.exists():
-            with ignore_file.open('r') as f:
-                file_patterns = [line.strip() for line in f.read().splitlines() if
-                                 line.strip() and not line.startswith('#')]
+            with ignore_file.open("r") as f:
+                file_patterns = [
+                    line.strip()
+                    for line in f.read().splitlines()
+                    if line.strip() and not line.startswith("#")
+                ]
                 patterns.update(file_patterns)
             print(f"Loaded exclusion patterns from '{ignore_file}'.")
         else:
             print(f"Ignore file '{ignore_file}' not found. Skipping.")
 
-    return pathspec.PathSpec.from_lines('gitwildmatch', patterns) if patterns else None
+    return (
+        pathspec.PathSpec.from_lines("gitwildmatch", patterns)
+        if patterns
+        else None
+    )
 
 
-def should_ignore(path: str, spec: pathspec.PathSpec | None, initial_root_dir: str) -> bool:
+def should_ignore(
+        path: str, spec: pathspec.PathSpec | None, initial_root_dir: str
+) -> bool:
     """
     Determine if a given path should be ignored based on the PathSpec.
 
@@ -66,14 +91,20 @@ def should_ignore(path: str, spec: pathspec.PathSpec | None, initial_root_dir: s
         return False
 
     try:
-        rel_path = os.path.relpath(path, initial_root_dir).replace(os.sep, '/')
+        rel_path = os.path.relpath(path, initial_root_dir).replace(os.sep, "/")
         return spec.match_file(rel_path)
     except ValueError:
         return False  # In case of different drive errors (Windows)
 
 
-def generate_tree(current_dir: str, prefix: str, spec: pathspec.PathSpec | None, visited: set[str] | None,
-                  initial_root_dir: str, tree_lines: list[str]) -> None:
+def generate_tree(
+        current_dir: str,
+        prefix: str,
+        spec: pathspec.PathSpec | None,
+        visited: set[str] | None,
+        initial_root_dir: str,
+        tree_lines: list[str],
+) -> None:
     """
     Recursively generates and stores the directory tree structure.
 
@@ -89,7 +120,12 @@ def generate_tree(current_dir: str, prefix: str, spec: pathspec.PathSpec | None,
 
     real_path = os.path.realpath(current_dir)
     if real_path in visited:
-        tree_lines.append(prefix + "└── " + os.path.basename(current_dir) + "/ (symlink loop)")
+        tree_lines.append(
+            prefix
+            + "└── "
+            + os.path.basename(current_dir)
+            + "/ (symlink loop)"
+        )
         return
     visited.add(real_path)
 
@@ -109,7 +145,9 @@ def generate_tree(current_dir: str, prefix: str, spec: pathspec.PathSpec | None,
 
         if os.path.isdir(path):
             tree_lines.append(prefix + connector + item + "/")
-            generate_tree(path, new_prefix, spec, visited, initial_root_dir, tree_lines)
+            generate_tree(
+                path, new_prefix, spec, visited, initial_root_dir, tree_lines
+            )
         else:
             tree_lines.append(prefix + connector + item)
 
@@ -131,7 +169,11 @@ def update_readme(tree_structure: str) -> None:
         content = ""
 
     if start_marker in content and end_marker in content:
-        content = content.split(start_marker)[0] + tree_section + content.split(end_marker)[1]
+        content = (
+                content.split(start_marker)[0]
+                + tree_section
+                + content.split(end_marker)[1]
+        )
     else:
         content += f"\n## Project Structure\n{tree_section}\n"
 
@@ -142,8 +184,15 @@ def update_readme(tree_structure: str) -> None:
 
 def main() -> None:
     """Main function to generate the directory tree and update README.md."""
-    parser = argparse.ArgumentParser(description="Generate a directory tree and update README.md.")
-    parser.add_argument("directory", nargs="?", default=".", help="Root directory (default: current directory)")
+    parser = argparse.ArgumentParser(
+        description="Generate a directory tree and update README.md."
+    )
+    parser.add_argument(
+        "directory",
+        nargs="?",
+        default=".",
+        help="Root directory (default: current directory)",
+    )
     args = parser.parse_args()
 
     root_dir = BASE_DIR
@@ -151,7 +200,10 @@ def main() -> None:
         print(f"Error: Directory '{root_dir}' does not exist.")
         sys.exit(1)
 
-    ignore_files = [Path(root_dir) / ".treeignore", Path(root_dir) / ".gitignore"]
+    ignore_files = [
+        Path(root_dir) / ".treeignore",
+        Path(root_dir) / ".gitignore",
+    ]
     spec = load_ignore_patterns(ignore_files, DEFAULT_IGNORE_PATTERNS)
 
     tree_lines = [os.path.basename(root_dir) + "/"]

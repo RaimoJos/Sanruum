@@ -1,7 +1,7 @@
 # sanruum\ai_core\speech\text_to_speech.py
 import os
 import tempfile
-from typing import Optional, Any
+from typing import Any, Optional
 
 import gtts
 import pyttsx3
@@ -39,7 +39,9 @@ class TextToSpeech:
         """Google TTS (Generates audio file and plays it)."""
         tts = gtts.gTTS(text, lang=self.language)
         # Create a temporary file
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as temp_file:
+        with tempfile.NamedTemporaryFile(
+                delete=False, suffix=".mp3"
+        ) as temp_file:
             filename = temp_file.name
             tts.save(filename)
             os.system(f"mpg321 {filename}")

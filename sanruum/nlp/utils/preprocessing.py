@@ -1,15 +1,15 @@
 import re
 
 import nltk
+from nltk import RegexpTokenizer
 # import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-from nltk.tokenize import word_tokenize
 
 # Ensure NLTK data is downloaded
 nltk.download("punkt", quiet=True)
 nltk.download("stopwords", quiet=True)
-nltk.download('wordnet', quiet=True)
+nltk.download("wordnet", quiet=True)
 
 # Initialize the Lemmatizer
 lemmatizer = WordNetLemmatizer()
@@ -19,8 +19,13 @@ stop_words = set(stopwords.words("english"))
 # Preprocess the text
 def preprocess_text(text):
     """
-    Cleans and processes text by lowercasing, removing non-alphabetic characters,
-    tokenizing, removing stopwords, and applying lemmatization.
+    Cleans and processes text by:
+    - Expanding constractions (e.g., "I've" -> "I have")
+    - Lowercasting
+    - Removing special characters
+    - Handling negations (e.g., "not happy" -> "not_happy")
+    - Removing stopwords
+    - Lemmatizing words
 
     Args:
         text (str): The input text to preprocess.
@@ -34,14 +39,17 @@ def preprocess_text(text):
     # Convert text to lowercase
     text = text.lower()
 
-    # Remove non-alphabetic characters (optional based on your needs)
-    text = re.sub(r'[^a-z\s]', '', text)
+    # Handle negations (e.g., "not happy" → "not_happy")
+    text = re.sub(r"not\s(\w+)", r"not_\1", text)
 
-    # Tokenize the text
-    tokens = word_tokenize(text)
+    # Tokenize while keeping only words (removes punctuation)
+    tokenizer = RegexpTokenizer(r"\w+")
+    tokens = tokenizer.tokenize(text)
 
-    # Remove stopwords and apply lemmatization
-    tokens = [lemmatizer.lemmatize(word) for word in tokens if word not in stop_words]
+    # Remove stopwords & apply lemmatization
+    tokens = [
+        lemmatizer.lemmatize(word) for word in tokens if word not in stop_words
+    ]
 
     # Return preprocessed text as a space-separated string
-    return ' '.join(tokens)
+    return " ".join(tokens)

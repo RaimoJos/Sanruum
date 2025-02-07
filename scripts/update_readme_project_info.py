@@ -7,7 +7,7 @@ import pytz
 
 from sanruum.constants import BASE_DIR
 
-README_FILE = os.path.join(BASE_DIR, 'STATS.md')
+README_FILE = os.path.join(BASE_DIR, "STATS.md")
 
 # Define the inactivity threshold in seconds (5 minutes)
 INACTIVITY_THRESHOLD = 5 * 60  # 5 minutes
@@ -33,14 +33,14 @@ def get_project_info(base_dir):
             total_size += os.path.getsize(filepath)
 
             # Count lines of code for Python files
-            if file.endswith('.py'):
+            if file.endswith(".py"):
                 editable_files += 1
-                with open(filepath, 'r', encoding='utf-8') as f:
+                with open(filepath, "r", encoding="utf-8") as f:
                     total_lines += len(f.readlines())
 
     # Get the current time in Europe/Tallinn timezone
-    tz = pytz.timezone('Europe/Tallinn')
-    last_updated = datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S')
+    tz = pytz.timezone("Europe/Tallinn")
+    last_updated = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
 
     # Prepare the project info
     project_info = {
@@ -48,7 +48,7 @@ def get_project_info(base_dir):
         "total_lines": total_lines,
         "total_files": total_files,
         "editable_files": editable_files,
-        "last_updated": last_updated
+        "last_updated": last_updated,
     }
 
     return project_info
@@ -86,19 +86,19 @@ This is an ongoing project with development and testing stages. Current progress
 
     # Check if README.md exists and update it
     if os.path.exists(README_FILE):
-        with open(README_FILE, 'r', encoding='utf-8') as file:
+        with open(README_FILE, "r", encoding="utf-8") as file:
             content = file.read()
 
         # If content is different, update the README file
         if new_content.strip() != content.strip():
-            with open(README_FILE, 'w', encoding='utf-8') as file:
+            with open(README_FILE, "w", encoding="utf-8") as file:
                 file.write(new_content)
             print("README.md updated.")
         else:
             print("README.md is already up-to-date.")
     else:
         # If README.md doesn't exist, create it
-        with open(README_FILE, 'w', encoding='utf-8') as file:
+        with open(README_FILE, "w", encoding="utf-8") as file:
             file.write(new_content)
         print("README.md created.")
 
@@ -136,7 +136,9 @@ def monitor_for_changes():
 def start_background_task():
     # Start the monitoring task in a separate thread to keep it running in the background
     background_thread = threading.Thread(target=monitor_for_changes)
-    background_thread.daemon = True  # This makes the thread exit when the main program exits
+    background_thread.daemon = (
+        True  # This makes the thread exit when the main program exits
+    )
     background_thread.start()
 
 

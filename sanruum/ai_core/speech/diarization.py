@@ -11,7 +11,9 @@ class SpeakerDiarization:
     def __init__(self, model: str = "pyannote/speaker-diarization") -> None:
         try:
             self.pipeline: Any = Pipeline.from_pretrained(model)
-            logger.info(f"Speaker diarization model '{model}' loaded successfully.")
+            logger.info(
+                f"Speaker diarization model '{model}' loaded successfully."
+            )
         except Exception as e:
             logger.error(f"Failed to load diarization model: {e}")
             raise

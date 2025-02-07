@@ -17,7 +17,9 @@ def listen() -> str:
         recognizer.adjust_for_ambient_noise(source)
         try:
             audio = recognizer.listen(source, timeout=5)
-            text: str = cast(str, recognizer.recognize_google(audio))  # Force str return type
+            text: str = cast(
+                str, recognizer.recognize_google(audio)
+            )  # Force str return type
             return text
         except sr.WaitTimeoutError:
             logger.warning("⏳ Listening timed out.")

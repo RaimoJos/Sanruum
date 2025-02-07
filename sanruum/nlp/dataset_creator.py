@@ -1,9 +1,10 @@
+import json
 import random
 from pathlib import Path
 
 import pandas as pd
 
-from sanruum.constants import RAW_DATA_FILE, PROCESSED_FILE
+from sanruum.constants import LABEL_MAP_FILE, PROCESSED_FILE, RAW_DATA_FILE
 
 # Ensure paths are correct
 PROCESSED_DATA_FILE = Path(PROCESSED_FILE)
@@ -19,48 +20,58 @@ except Exception as e:
     raw_texts, raw_labels = [], []
 
 # Manually defined texts
-appointment_texts = [
-    "I need to book an appointment for next week.",
-    "Can I schedule a meeting with the dentist?",
-    "When is my next appointment with the doctor?",
-    "I'd like to book an appointment for tomorrow.",
-    "How do I reschedule my doctor's appointment?",
-    "I need to cancel my hair salon appointment.",
-    "What time is my scheduled meeting?",
-    "Can I change my appointment to another day?",
-    "Is there a way to book a same-day appointment?",
-]
+intent_classes = {
+    "appointment": [
+        "I need to book an appointment for next week.",
+        "Can I schedule a meeting with the dentist?",
+        "I want to change my appointment time.",
+        "How do I cancel my booking?",
+        "Is there a way to book a same-day appointment?",
+    ],
+    "general": [
+        "How is the weather today?",
+        "What time is it?",
+        "Can you tell me a joke?",
+        "How are you doing?",
+        "What’s the capital of France?",
+    ],
+    "business_inquiry": [
+        "Do you offer enterprise solutions?",
+        "How can I contact your sales team?",
+        "What are your pricing plans?",
+        "Can I book a demo of your services?",
+        "Do you offer AI integration services?",
+    ],
+}
 
-general_inquiries_texts = [
-    "How is the weather today?",
-    "What time is it?",
-    "Can you tell me a joke?",
-    "How are you doing?",
-    "Where can I find the nearest grocery store?",
-    "What’s the latest news?",
-    "How does machine learning work?",
-    "Explain artificial intelligence in simple terms.",
-    "What’s the capital of France?",
-]
+# Assign numeric labels
+label_map = {label: idx for idx, label in enumerate(intent_classes.keys())}
 
-# Combine the texts and create corresponding labels
-texts = appointment_texts + general_inquiries_texts + raw_texts
-labels = ([1] * len(appointment_texts) + [0] * len(general_inquiries_texts) + raw_labels)
+# Combine the texts and labels
+texts = []
+labels = []
 
-# Shuffle the dataset to ensure randomness
+for intent, phrases in intent_classes.items():
+    texts.extend(phrases)
+    labels.extend([label_map[intent]] * len(phrases))
+
+# Add raw data if available
+texts += raw_texts
+labels += raw_labels
+
+# Shuffle the dataset for randomness
 data = list(zip(texts, labels))
 random.shuffle(data)
 
 # Separate the texts and labels after shuffling
 texts, labels = zip(*data)
 
-# Create a DataFrame
-df = pd.DataFrame({
-    "text": texts,
-    "label": labels
-})
-
-# Save to CSV
+# Save dataset
+df = pd.DataFrame({"text": texts, "label": labels})
 df.to_csv(PROCESSED_DATA_FILE, index=False)
+
+# Save label map for later use
+with open(LABEL_MAP_FILE, "w") as f:
+    json.dump(label_map, f)
 
 print(f"Dataset created and saved to {PROCESSED_FILE}")

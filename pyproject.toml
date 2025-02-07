@@ -17,7 +17,7 @@ pyttsx3 = "^2.98"
 
 spacy = "^3.8.4"
 vadersentiment = "^3.3.2"
-transformers = "^4.48.2"
+transformers = "^4.48.3"
 speechrecognition = "^3.14.1"
 whisper = "^1.1.10"
 gtts = "^2.5.4"
@@ -52,7 +52,7 @@ warn_return_any = true         # Warn about functions that return `Any`
 
 
 [tool.black]
-line-length = 88
+line-length = 79
 target-version = ['py311']  # Adjust for the version you're using
 
 

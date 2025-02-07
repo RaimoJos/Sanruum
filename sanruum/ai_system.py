@@ -2,10 +2,11 @@ import json
 import os.path
 import threading
 import time
-from typing import List, Union, Dict, Optional, TypedDict, cast
+from typing import Dict, List, Optional, TypedDict, Union, cast
 
 from sanruum.ai_core.response import AIResponse
-from sanruum.constants import SESSION_HISTORY_FILE
+from sanruum.constants import BASE_DIR, SESSION_HISTORY_FILE
+from sanruum.monitor.monitor import SanruumMonitor
 from sanruum.nlp.utils.preprocessing import preprocess_text
 from sanruum.utils.audio_utils import listen, speak
 from sanruum.utils.logger import logger
@@ -23,6 +24,8 @@ class SessionStats(TypedDict):
 
 class SanruumAI:
     def __init__(self) -> None:
+        self.monitor = SanruumMonitor(BASE_DIR)  # Initialize the monitor
+        self.monitor.monitor()
         self.memory = {}
         self.tasks = []
         self.personality = "default"
@@ -34,7 +37,7 @@ class SanruumAI:
             "voice_queries": 0,
             "unknown_responses": 0,
             "avg_response_time": 0.0,
-            "query_log": []
+            "query_log": [],
         }
         self._load_history()
 
@@ -84,23 +87,29 @@ class SanruumAI:
         self.personality = mode
         return f"AI mode set to: {mode}"
 
-    def update_stats(self, user_input: str, response: str, response_time: float, mode: str) -> None:
+    def update_stats(
+            self, user_input: str, response: str, response_time: float, mode: str
+    ) -> None:
         self.session_stats["total_queries"] += 1
-        self.session_stats["text_queries" if mode == "text" else "voice_queries"] += 1
+        self.session_stats[
+            "text_queries" if mode == "text" else "voice_queries"
+        ] += 1
         if response in ["I'm not sure", "I don't know"]:
             self.session_stats["unknown_responses"] += 1
         prev_total = max(self.session_stats["total_queries"] - 1, 1)
         self.session_stats["avg_response_time"] = (
-                (self.session_stats["avg_response_time"] * prev_total + response_time)
-                / self.session_stats["total_queries"]
+                                                          self.session_stats["avg_response_time"] * prev_total
+                                                          + response_time
+                                                  ) / self.session_stats["total_queries"]
+        self.session_stats["query_log"].append(
+            {
+                "query": user_input,
+                "response": response,
+                "mode": mode,
+                "response_time": round(response_time, 2),
+                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+            }
         )
-        self.session_stats["query_log"].append({
-            "query": user_input,
-            "response": response,
-            "mode": mode,
-            "response_time": round(response_time, 2),
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-        })
 
     def print_stats(self) -> None:
         """Display session statistics"""
@@ -131,7 +140,9 @@ class SanruumAI:
 
     def select_input_mode(self) -> None:
         while True:
-            mode_choice = input("Enter 1 for text input or 2 for voice input (or 'exit' to quit): ").strip()
+            mode_choice = input(
+                "Enter 1 for text input or 2 for voice input (or 'exit' to quit): "
+            ).strip()
             if mode_choice.lower() in ["exit", "quit"]:
                 self.save_history()
                 logger.info("Shutting down Sanruum AI. Goodbye! 👋")
@@ -150,8 +161,14 @@ class SanruumAI:
             self.select_input_mode()
         while True:
             try:
-                user_input = listen() if self.input_mode == "voice" else input("🧠 You: ").strip()
-                clean_input = preprocess_text(user_input)  # Preprocess text before AI processing
+                user_input = (
+                    listen()
+                    if self.input_mode == "voice"
+                    else input("🧠 You: ").strip()
+                )
+                clean_input = preprocess_text(
+                    user_input
+                )  # Preprocess text before AI processing
                 if user_input.lower() in ["exit", "quit"]:
                     self.save_history()
                     logger.info("Shutting down Sanruum AI. Goodbye! 👋")
@@ -170,7 +187,9 @@ class SanruumAI:
                 logger.info(f"🤖 Sanruum AI: {response}")
                 print(f"🤖 Sanruum AI: {response}")
                 assert self.input_mode is not None
-                self.update_stats(user_input, response, response_time, self.input_mode)
+                self.update_stats(
+                    user_input, response, response_time, self.input_mode
+                )
                 speak(response)
             except KeyboardInterrupt:
                 self.save_history()

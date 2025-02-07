@@ -1,18 +1,29 @@
 # sanruum\utils\logger.py
 import io
 import logging
+import os
 import sys
+from pathlib import Path
 
 import colorlog
 
 from sanruum.constants import LOG_FILE
 
+# Ensure log directory exists
+log_path = Path(LOG_FILE).parent
+log_path.mkdir(parents=True, exist_ok=True)
+
 # Ensure UTF-8 output without detaching
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+if sys.stdout.encoding.lower() != "utf-8":
+    sys.stdout = io.TextIOWrapper(
+        sys.stdout.buffer, encoding="utf-8", errors="replace"
+    )
 
 # Log format
 LOG_FORMAT = "%(asctime)s - [%(levelname)s] - %(message)s"
-COLOR_FORMAT = "%(log_color)s%(asctime)s - [%(levelname)s] - %(message)s%(reset)s"
+COLOR_FORMAT = (
+    "%(log_color)s%(asctime)s - [%(levelname)s] - %(message)s%(reset)s"
+)
 
 # Console handler (colored)
 console_handler = logging.StreamHandler(sys.stdout)
@@ -23,7 +34,7 @@ console_formatter = colorlog.ColoredFormatter(
         "INFO": "green",
         "WARNING": "yellow",
         "ERROR": "red",
-        "CRITICAL": "bold_red"
+        "CRITICAL": "bold_red",
     },
 )
 console_handler.setFormatter(console_formatter)
@@ -35,7 +46,11 @@ file_handler.setFormatter(file_formatter)
 
 # Logger setup
 logger = logging.getLogger("sanruum")
-logger.setLevel(logging.DEBUG)  # Change to WARNING or INFO in production
+
+# Use an environment variable for logging level (default to DEBUG)
+log_level = os.getenv("SANRUUM_LOG_LEVEL", "DEBUG").upper()
+logger.setLevel(getattr(logging, log_level, logging.DEBUG))
+
 logger.addHandler(console_handler)
 logger.addHandler(file_handler)
 

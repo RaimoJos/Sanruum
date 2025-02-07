@@ -1,29 +1,12 @@
 # sanruum\ai_core\memory.py
-"""
-memory.py - Handles the memory system for AI conversations.
-
-This module tracks conversation history, user intents, and reminders to maintain context
-across interactions. It also provides methods to manage memory efficiently.
-
-Class:
-- AIMemory: Represents the AI's memory, stores conversation history, reminders, and user intents.
-
-Key Methods:
-- store_message(role: str, message: str) -> None: Stores a message in memory, keeping the latest ones.
-- get_last_message() -> Optional[str]: Retrieves the last message stored.
-- get_last_intent() -> Optional[str]: Retrieves the last intent detected.
-- set_last_intent(intent: str) -> None: Sets the last detected user intent.
-- add_reminder(reminder: str) -> None: Adds a reminder for follow-up actions.
-- get_reminders() -> List[str]: Retrieves all stored reminders.
-- reset_memory() -> None: Clears the entire memory.
-"""
 import json
 import os.path
-from typing import List, Optional, Dict, Any
+from typing import Any, Dict, List, Optional
 
 from sentence_transformers import SentenceTransformer
 
 from sanruum.constants import MEMORY_FILE
+from sanruum.utils.logger import logger
 
 
 class AIMemory:
@@ -41,16 +24,17 @@ class AIMemory:
         self.embedder = SentenceTransformer("all-MiniLM-L6-v2")
 
     def store_message(self, role: str, message: str) -> None:
-        """Stores a message in memory, keeping the latest ones."""
+        """Store a message while keeping the latest ones."""
         vector = self.embedder.encode(message)
+
         if "history" not in self.memory:
             self.memory["history"] = []
 
-        self.memory.append({"role": role, "message": message, "vector": vector})
+        self.memory["history"].append(
+            {"role": role, "message": message, "vector": vector}
+        )
 
-        self.memory["history"].append({"role": role, "message": message})
-
-        # Keep only the latest messages up to memory_limit
+        # Keep only the latest messages
         self.memory["history"] = self.memory["history"][-self.memory_limit:]
         self.save_memory()
 
@@ -62,13 +46,42 @@ class AIMemory:
                 with open(MEMORY_FILE, "r", encoding="utf-8") as f:
                     return json.load(f)
             except json.JSONDecodeError:
-                return {}
-        return {}
+                logger.error("❌ Memory file corrupted, resetting memory")
+                return {"history": []}
+        return {"history": []}
 
     def save_memory(self) -> None:
-        """Save AI memory to file. """
-        with open(MEMORY_FILE, "w", encoding="utf-8") as f:
-            json.dump(self.memory, f, indent=4)
+        """Save AI memory to file."""
+        try:
+            with open(MEMORY_FILE, "w", encoding="utf-8") as f:
+                json.dump(self.memory, f, indent=4)
+        except Exception as e:
+            logger.error(f"❌ Failed to save memory: {e}")
+
+    def find_relevant_knowledge(self, query: str) -> Optional[str]:
+        """Find the most relevant stored knowledge based on similarity."""
+        query_vector = self.embedder.encode(query)
+        best_match = None
+        best_score = -1
+
+        for topic, info in self.memory.items():
+            if isinstance(info, list):
+                for item in info:
+                    item_vector = self.embedder.encode(item)
+                    similarity = (
+                            query_vector @ item_vector
+                    )  # Dot product for similarity
+                    if similarity > best_score:
+                        best_match = item
+                        best_score = similarity
+
+        return best_match
+
+    def get_last_message(self) -> Optional[str]:
+        """Return the last message in history."""
+        if self.memory["history"]:
+            return self.memory["history"][-1].get("message")
+        return None
 
     def store_knowledge(self, topic: str, data: str) -> None:
         """Store new information under a topic."""
@@ -82,20 +95,6 @@ class AIMemory:
     def retrieve_knowledge(self, topic: str) -> Optional[List[str]]:
         """Retrieve stored knowledge about a topic."""
         return self.memory.get(topic.lower(), None)
-
-    def find_relevant_knowledge(self, query: str) -> Optional[str]:
-        """Search for the most relevant stored knowledge."""
-        for topic, info in self.memory.items():
-            if isinstance(info, list) and topic in query.lower():
-                return " ".join(info)  # Return all stored info on the topic
-        return None
-
-    def get_last_message(self) -> Optional[str]:
-        """Return the last message in memory."""
-        history = self.memory.get("history", [])
-        if isinstance(history, list) and history and isinstance(history[-1], dict):
-            return history[-1].get("message")
-        return None
 
     def get_last_intent(self) -> Optional[str]:
         """Returns the last recognized intent."""
