@@ -6,6 +6,7 @@ from typing import List, Union, Dict, Optional, TypedDict, cast
 
 from sanruum.ai_core.response import AIResponse
 from sanruum.constants import SESSION_HISTORY_FILE
+from sanruum.nlp.utils.preprocessing import preprocess_text
 from sanruum.utils.audio_utils import listen, speak
 from sanruum.utils.logger import logger
 from sanruum.utils.web_search import search_web
@@ -47,6 +48,8 @@ class SanruumAI:
                 pass
 
     def process_command(self, command: str) -> str:
+        """Process user command using NLP preprocessing."""
+        clean_command = preprocess_text(command)  # Clean user input
         handlers = {
             "search": self.web_search,
             "remember": self.remember,
@@ -54,8 +57,8 @@ class SanruumAI:
             "set_mode": self.set_mode,
         }
         for key, handler in handlers.items():
-            if key in command:
-                return handler(command)
+            if key in clean_command:
+                return handler(clean_command)
         return "Command not recognized."
 
     @staticmethod
@@ -64,8 +67,10 @@ class SanruumAI:
         return f"Searching the web for: {query}"
 
     def remember(self, data: str) -> str:
+        """Store cleaned memory for better AI retrieval."""
+        clean_data = preprocess_text(data)
         try:
-            key, value = map(str.strip, data.split(":", 1))
+            key, value = map(str.strip, clean_data.split(":", 1))
             self.memory[key] = value
             return "Memory updated."
         except ValueError:
@@ -146,6 +151,7 @@ class SanruumAI:
         while True:
             try:
                 user_input = listen() if self.input_mode == "voice" else input("🧠 You: ").strip()
+                clean_input = preprocess_text(user_input)  # Preprocess text before AI processing
                 if user_input.lower() in ["exit", "quit"]:
                     self.save_history()
                     logger.info("Shutting down Sanruum AI. Goodbye! 👋")

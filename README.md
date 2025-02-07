@@ -44,6 +44,24 @@ sanruum/
 │   ├── constants.py
 │   ├── faq_handler.py
 │   ├── main.py
+│   ├── nlp/
+│   │   ├── __init__.py
+│   │   ├── data/
+│   │   │   ├── processed_data/
+│   │   │   │   └── processed_text_data.csv
+│   │   │   └── raw_data/
+│   │   │       └── raw_text_data.csv
+│   │   ├── data_loader.py
+│   │   ├── dataset_creator.py
+│   │   ├── models/
+│   │   │   ├── logistic_regression_model.pkl
+│   │   │   ├── random_forest_model.pkl
+│   │   │   └── svm_model.pkl
+│   │   ├── output.png
+│   │   ├── train_model.py
+│   │   └── utils/
+│   │       ├── __init__.py
+│   │       └── preprocessing.py
 │   └── utils/
 │       ├── __init__.py
 │       ├── audio_utils.py

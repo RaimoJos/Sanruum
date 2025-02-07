@@ -21,6 +21,8 @@ import json
 import os.path
 from typing import List, Optional, Dict, Any
 
+from sentence_transformers import SentenceTransformer
+
 from sanruum.constants import MEMORY_FILE
 
 
@@ -36,11 +38,15 @@ class AIMemory:
         self.memory: Dict[str, Any] = self.load_memory()
         self.last_intent: Optional[str] = None
         self.reminders: List[str] = []
+        self.embedder = SentenceTransformer("all-MiniLM-L6-v2")
 
     def store_message(self, role: str, message: str) -> None:
         """Stores a message in memory, keeping the latest ones."""
+        vector = self.embedder.encode(message)
         if "history" not in self.memory:
             self.memory["history"] = []
+
+        self.memory.append({"role": role, "message": message, "vector": vector})
 
         self.memory["history"].append({"role": role, "message": message})
 
