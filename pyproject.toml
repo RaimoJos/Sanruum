@@ -44,6 +44,7 @@ mypy = "^1.14.1"
 flake8 = "^7.1.1"
 black = "^25.1.0"
 types-requests = "^2.32.0.20241016"
+pytz = "^2025.1"
 
 [tool.mypy]
 ignore_missing_imports = true  # Keep this to avoid issues with libraries that lack type hints

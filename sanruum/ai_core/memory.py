@@ -104,6 +104,10 @@ class AIMemory:
         knowledge = self.memory.get(topic.lower())
         return knowledge if isinstance(knowledge, list) else None
 
+    def get_all_knowledge(self) -> dict[str, list[str]]:
+        """Retrieve all stored knowledge except conversation history."""
+        return {key: value for key, value in self.memory.items() if key != 'history'}
+
     def get_last_intent(self) -> str | None:
         """Returns the last recognized intent."""
         return self.last_intent
