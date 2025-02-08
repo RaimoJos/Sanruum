@@ -43,6 +43,7 @@ sanruum = "sanruum.main:main"
 mypy = "^1.14.1"
 flake8 = "^7.1.1"
 black = "^25.1.0"
+types-requests = "^2.32.0.20241016"
 
 [tool.mypy]
 ignore_missing_imports = true  # Keep this to avoid issues with libraries that lack type hints
@@ -52,7 +53,7 @@ check_untyped_defs = true      # Check even functions without type hints
 show_error_codes = true        # Display the error codes for more precise troubleshooting
 warn_unused_ignores = true     # Warn if you have unused `# type: ignore`
 warn_return_any = true         # Warn about functions that return `Any`
-
+follow_untyped_imports = true
 
 [tool.black]
 line-length = 88
