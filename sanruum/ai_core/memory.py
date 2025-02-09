@@ -1,4 +1,3 @@
-# sanruum\ai_core\memory.py
 from __future__ import annotations
 
 import json
@@ -6,6 +5,7 @@ import os.path
 from typing import Any
 
 from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
 
 from sanruum.constants import MEMORY_FILE
 from sanruum.utils.logger import logger
@@ -23,35 +23,37 @@ class AIMemory:
         self.memory: dict[str, Any] = self.load_memory()
         self.last_intent: str | None = None
         self.reminders: list[str] = []
-        self.embedder = SentenceTransformer('all-MiniLM-L6-v2')
+
+        try:
+            self.embedder = SentenceTransformer('all-MiniLM-L6-v2')
+        except Exception as e:
+            logger.error(f'❌ Failed to load SentenceTransformer: {e}')
+            self.embedder = None
 
     def store_message(self, role: str, message: str) -> None:
         """Store a message while keeping the latest ones."""
-        vector = self.embedder.encode(message)
+        if self.embedder:
+            vector = self.embedder.encode(message).tolist()
+        else:
+            vector = []
 
-        if 'history' not in self.memory:
-            self.memory['history'] = []
-
-        self.memory['history'].append(
+        self.memory.setdefault('history', []).append(
             {'role': role, 'message': message, 'vector': vector},
         )
 
-        # Keep only the latest messages
         self.memory['history'] = self.memory['history'][-self.memory_limit:]
         self.save_memory()
 
     @staticmethod
-    def load_memory() -> dict[str, list[str]]:
+    def load_memory() -> dict[str, Any]:
         """Load AI memory from file."""
         if os.path.exists(MEMORY_FILE):
             try:
                 with open(MEMORY_FILE, encoding='utf-8') as f:
                     data = json.load(f)
-                    # Ensure the history is always a list of strings
                     return {'history': data.get('history', [])}
             except json.JSONDecodeError:
                 logger.error('❌ Memory file corrupted, resetting memory')
-                return {'history': []}
         return {'history': []}
 
     def save_memory(self) -> None:
@@ -64,23 +66,37 @@ class AIMemory:
 
     def find_relevant_knowledge(self, query: str) -> str | None:
         """Find the most relevant stored knowledge based on similarity."""
-        query_vector = self.embedder.encode(query)
-        best_match: str | None = None  # Specify the type as str or None
+        if not self.embedder:
+            logger.error('No embedder available for computing query vector.')
+            return None
+
+        query_vector = self.embedder.encode(query).reshape(1, -1)  # Reshape for sklearn
+        logger.debug(f'Query Vector: {query_vector}')
+
+        best_match = None
         best_score = -1
 
-        for topic, info in self.memory.items():
-            if isinstance(info, list):
-                for item in info:
-                    item_vector = self.embedder.encode(item)
+        knowledge = self.get_all_knowledge()
+        if not knowledge:
+            logger.debug('No stored knowledge!')
+            return None
 
-                    # Dot product for similarity
-                    similarity = query_vector @ item_vector
+        for topic, info in knowledge.items():
+            for item in info:
+                item_vector = self.embedder.encode(item).reshape(1, -1)
+                similarity = cosine_similarity(query_vector, item_vector)[0][0]
+                logger.debug(
+                    f"Comparing '{query}' to '{item}' → similarity: {similarity}",
+                )
 
-                    if similarity > best_score:
-                        best_match = item
-                        best_score = similarity
+                if similarity > best_score:
+                    best_match = item
+                    best_score = similarity
 
-        return best_match  # Explicitly return None or a string
+        if best_match is None:
+            logger.debug('No match found!')
+
+        return best_match
 
     def get_last_message(self) -> str | None:
         """Return the last message in history."""
@@ -92,21 +108,22 @@ class AIMemory:
 
     def store_knowledge(self, topic: str, data: str) -> None:
         """Store new information under a topic."""
-        topic = topic.lower()
-        if topic not in self.memory:
-            self.memory[topic] = []
-        if data not in self.memory[topic]:
-            self.memory[topic].append(data)
+        self.memory.setdefault(topic.lower(), []).append(data)
         self.save_memory()
 
     def retrieve_knowledge(self, topic: str) -> list[str] | None:
         """Retrieve stored knowledge about a topic."""
-        knowledge = self.memory.get(topic.lower())
-        return knowledge if isinstance(knowledge, list) else None
+        data = self.memory.get(topic.lower(), None)
+        if isinstance(data, list):
+            return data
+        return None
 
     def get_all_knowledge(self) -> dict[str, list[str]]:
         """Retrieve all stored knowledge except conversation history."""
-        return {key: value for key, value in self.memory.items() if key != 'history'}
+        return {
+            k: v for k, v in self.memory.items()
+            if k != 'history' and isinstance(v, list)
+        }
 
     def get_last_intent(self) -> str | None:
         """Returns the last recognized intent."""
@@ -126,8 +143,7 @@ class AIMemory:
 
     def reset_memory(self) -> None:
         """Clears the memory, reminders, and last intent."""
-        self.memory.clear()
-        self.memory['history'] = []  # Ensure history remains a list
+        self.memory = {'history': []}
         self.reminders.clear()
         self.last_intent = None
         self.save_memory()
