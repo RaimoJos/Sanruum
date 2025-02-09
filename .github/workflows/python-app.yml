@@ -48,4 +48,6 @@ jobs:
       - name: Test with pytest
         shell: pwsh
         run: |
-          pytest
+          pytest --rootdir=C:/projects/sanruum
+        working-directory: C:/projects/sanruum
+
