@@ -135,9 +135,10 @@ ai_memory.json
 label_map.json
 sanruum/nlp/models/*
 session_history.json
-output.png
+
 sanruum/nlp/data/processed_data/*
 sanruum/nlp/data/raw_data/*
 *.bak
 *.bak.*
 STATS.md
+*.mp3
