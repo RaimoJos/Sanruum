@@ -1,3 +1,4 @@
+# scripts\add_filename.py
 from __future__ import annotations
 
 import os
