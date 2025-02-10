@@ -51,6 +51,7 @@ flake8 = "^7.1.1"
 black = "^25.1.0"
 types-requests = "^2.32.0.20241016"
 pytz = "^2025.1"
+pytest-cov = "^6.0.0"
 
 [tool.mypy]
 ignore_missing_imports = true  # Keep this to avoid issues with libraries that lack type hints
@@ -67,7 +68,6 @@ line-length = 88
 target-version = ['py311']  # Adjust for the version you're using
 
 [tool.pytest.ini_options]
-rootdir = "C:/projects/sanruum"
 minversion = "6.0"
 addopts = "--cov=sanruum --cov-report=term-missing --tb=short -q"
 testpaths = [
