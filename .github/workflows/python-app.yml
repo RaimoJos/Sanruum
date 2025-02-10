@@ -14,6 +14,12 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      - name: Debug Working Directory
+        shell: cmd
+        run: |
+          echo Current working directory: %CD%
+          dir
+
       - name: Checkout repository with submodules
         uses: actions/checkout@v4
         with:
@@ -60,6 +66,5 @@ jobs:
         shell: cmd
         run: |
           pytest --cache-clear
-          pytest --cov=./sanruum --cov-report=term-missing
-
-        working-directory: C:/projects/sanruum
+          pytest --cov=sanruum --cov-report=term-missing
+        working-directory: ${{ github.workspace }}
