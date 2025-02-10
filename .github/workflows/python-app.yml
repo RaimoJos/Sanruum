@@ -36,20 +36,21 @@ jobs:
         shell: pwsh
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 pytest pytest-cov sentence-transformers  # ✅ Added sentence-transformers
+          pip install flake8 pytest pytest-cov sentence-transformers
           if (Test-Path requirements.txt) { pip install -r requirements.txt }
 
       - name: Verify pytest installation
         shell: pwsh
         run: |
           pip show pytest
-          python -m pytest --version  # ✅ Ensure pytest is available
+          python -m pytest --version  # Ensure pytest is available
 
       - name: Debug pytest rootdir
         shell: cmd
         run: |
+          echo Current working directory: %CD%
           python -m pytest --version
-          python -m pytest --rootdir=D:/a/sanruum/sanruum --collect-only
+          python -m pytest --rootdir=. --collect-only  # Use current directory
 
       - name: Lint with flake8
         shell: pwsh
@@ -60,12 +61,12 @@ jobs:
       - name: Clear pytest cache
         shell: cmd
         run: |
-          python -m pytest --cache-clear  # ✅ Use `python -m pytest`
+          python -m pytest --cache-clear
 
       - name: Test with pytest
         shell: cmd
-        working-directory: D:/a/sanruum/sanruum  # 👈 Set correct working directory
+        working-directory: D:/a/sanruum/sanruum  # Set correct working directory
         run: |
-          python -m pytest --cache-clear  # ✅ Use `python -m pytest`
           python -m pytest --cov=sanruum --cov-report=term-missing
+
 
