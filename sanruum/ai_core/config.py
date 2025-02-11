@@ -1,20 +1,4 @@
 # sanruum\ai_core\config.py
-"""
-config.py - Configuration module for loading and managing responses.
-
-The module handles loading response data from a JSON file and
- setting default values if the file does not exist or fails to
- load. It also defines configuration settings like the personality mode.
-
-Key Constants:
-- PERSONALITY_MODE: Defines the tone of the AI's responses
-    (friendly, formal, professional).
-- RESPONSES: Contains the AI's responses loaded from the `RESPONSES_FILE`.
-    Default is an empty dictionary.
-
-Functions:
-- No standalone functions; the module handles initialization logic directly.
-"""
 from __future__ import annotations
 
 import json
