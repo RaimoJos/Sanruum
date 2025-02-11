@@ -1,13 +1,14 @@
+# sanruum\nlp\data_loader.py
 from __future__ import annotations
 
 import json
 from pathlib import Path
 
 import pandas as pd
-from utils.preprocessing import preprocess_text
 
 from sanruum.constants import LABEL_MAP_FILE
 from sanruum.constants import RAW_DATA_FILE
+from sanruum.nlp.utils.preprocessing import preprocess_text
 from sanruum.utils.logger import logger
 
 # Load label map
