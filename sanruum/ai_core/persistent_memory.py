@@ -28,14 +28,10 @@ from sanruum.utils.logger import logger
 
 class PersistentAIMemory(AIMemory):
     def __init__(self, user_id: str) -> None:
-        """
-        Initialize PersistentAIMemory for a specific user."""
+        """Initialize PersistentAIMemory for a specific user."""
         super().__init__()
         self.user_id = user_id
-        self.memory_file = os.path.join(
-            USER_MEMORY_DIR,
-            f'memory_{self.user_id}.pkl',
-        )
+        self.memory_file = os.path.join(USER_MEMORY_DIR, f'memory_{self.user_id}.pkl')
         self.load_user_memory()
 
     def load_user_memory(self) -> None:
@@ -49,9 +45,7 @@ class PersistentAIMemory(AIMemory):
         except (FileNotFoundError, pickle.UnpicklingError) as e:
             self.memory = {'history': []}  # Default to empty history
             self.last_intent = None
-            logger.error(
-                f'❌ Failed to load user memory for {self.user_id}: {e}',
-            )
+            logger.error(f'❌ Failed to load user memory for {self.user_id}: {e}')
 
     def store_message(self, role: str, message: str) -> None:
         """Store a message while keeping the latest ones."""
@@ -75,9 +69,7 @@ class PersistentAIMemory(AIMemory):
             with open(self.memory_file, 'wb+') as file:
                 pickle.dump((self.memory, self.last_intent), file)
         except Exception as e:
-            logger.error(
-                f'❌ Failed to persist memory for user {self.user_id}: {e}',
-            )
+            logger.error(f'❌ Failed to persist memory for user {self.user_id}: {e}')
 
     def reset_memory(self) -> None:
         """Clears all memory, including persistent storage."""
