@@ -1,3 +1,4 @@
+# sanruum\ai_system.py
 from __future__ import annotations
 
 import json
@@ -15,6 +16,8 @@ from sanruum.utils.audio_utils import listen
 from sanruum.utils.audio_utils import speak
 from sanruum.utils.logger import logger
 from sanruum.utils.web_search import search_web
+
+history_lock = threading.Lock()
 
 
 class SessionStats(TypedDict):
@@ -57,6 +60,9 @@ class SanruumAI:
     def process_command(self, command: str) -> str:
         """Process user command using NLP preprocessing."""
         clean_command = preprocess_text(command)
+        if 'stats' in clean_command:
+            self.print_stats()
+            return 'Displaying stats...'
         handlers = {
             'search': self.web_search,
             'remember': self.remember,
@@ -71,7 +77,8 @@ class SanruumAI:
     @staticmethod
     def web_search(query: str) -> str:
         """Advanced multi-source web search"""
-        return f'Searching the web for: {query}'
+        search_result = search_web(query)
+        return search_result if search_result else 'No relevant results found.'
 
     def remember(self, data: str) -> str:
         """Store cleaned memory for better AI retrieval."""
@@ -156,9 +163,10 @@ class SanruumAI:
         """Save session history asynchronously to prevent blocking."""
 
         def _save() -> None:
-            with open(SESSION_HISTORY_FILE, 'w', encoding='utf-8') as f:
-                json.dump(self.session_stats, f, indent=4)
-            logger.info('📁 Session history saved.')
+            with history_lock:
+                with open(SESSION_HISTORY_FILE, 'w', encoding='utf-8') as f:
+                    json.dump(self.session_stats, f, indent=4)
+                logger.info('📁 Session history saved.')
 
         threading.Thread(target=_save, daemon=True).start()
 
