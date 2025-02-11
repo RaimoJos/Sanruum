@@ -1,3 +1,4 @@
+# sanruum\nlp\train_model.py
 from __future__ import annotations
 
 import os
@@ -12,10 +13,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
-from sklearn.metrics import auc
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
-from sklearn.metrics import roc_curve
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import train_test_split
@@ -31,10 +30,14 @@ matplotlib.use('Agg')
 
 
 def save_model(model: Any, filename: str) -> None:
-    """Save model to disk."""
+    """Save model to disk with versioning."""
     if not os.path.exists(MODEL_DIR):
         os.makedirs(MODEL_DIR)
-    filepath = os.path.join(MODEL_DIR, filename)
+    base_name, ext = os.path.splitext(filename)
+    version = 1
+    while os.path.exists(os.path.join(MODEL_DIR, f'{base_name}_v{version}{ext}')):
+        version += 1
+    filepath = os.path.join(MODEL_DIR, f'{base_name}_v{version}{ext}')
     joblib.dump(model, filepath)
     print(f'Model saved to: {filepath}')
 
@@ -43,7 +46,11 @@ def load_model(filename: str) -> Any | None:
     """Load model from disk."""
     filepath = os.path.join(MODEL_DIR, filename)
     if os.path.exists(filepath):
-        return joblib.load(filepath)
+        try:
+            return joblib.load(filepath)
+        except Exception as e:
+            print(f'Error loading model from {filepath}: {e}')
+            return None
     else:
         print(f'Model file not found: {filepath}')
         return None
@@ -58,23 +65,28 @@ def evaluate_model(model: Any, X_test: Any, y_test: Any, model_name: str) -> Non
     print(f'Confusion Matrix:\n{confusion_matrix(y_test, y_pred)}')
 
     # ROC Curve and AUC
+    from sklearn.metrics import auc, precision_recall_curve
+
+    # Inside the evaluate_model function
     if hasattr(model, 'predict_proba'):
         y_prob = model.predict_proba(X_test)[:, 1]
-        fpr, tpr, _ = roc_curve(y_test, y_prob)
-        roc_auc = auc(fpr, tpr)
-
+        precision, recall, _ = precision_recall_curve(y_test, y_prob)
+        pr_auc = auc(recall, precision)
         plt.figure()
-        plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC (AUC = {roc_auc:.2f})')
-        plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-        plt.xlabel('False Positive Rate')
-        plt.ylabel('True Positive Rate')
-        plt.title(f'ROC Curve - {model_name}')
-        plt.legend(loc='lower right')
-
-        # Save ROC curve
-        roc_filename = os.path.join(MODEL_DIR, f'roc_curve_{model_name}.png')
-        plt.savefig(roc_filename)
-        print(f'ROC curve saved: {roc_filename}')
+        plt.plot(
+            recall,
+            precision,
+            color='blue',
+            lw=2,
+            label=f'PR Curve (AUC = {pr_auc:.2f})',
+        )
+        plt.xlabel('Recall')
+        plt.ylabel('Precision')
+        plt.title(f'Precision-Recall Curve - {model_name}')
+        plt.legend(loc='lower left')
+        pr_filename = os.path.join(MODEL_DIR, f'pr_curve_{model_name}.png')
+        plt.savefig(pr_filename)
+        print(f'PR curve saved: {pr_filename}')
         plt.close()
 
 
@@ -88,7 +100,10 @@ def load_and_preprocess_data() -> tuple[pd.DataFrame, Any, Any, TfidfVectorizer]
 
     # Convert text to numerical features using TF-IDF Vectorizer
     vectorizer = TfidfVectorizer(
-        stop_words='english', max_df=0.9, min_df=2, ngram_range=(1, 2),
+        stop_words='english',
+        max_df=0.9,
+        min_df=2,
+        ngram_range=(1, 2),
     )
     X_tfidf = vectorizer.fit_transform(X)
 
@@ -96,26 +111,33 @@ def load_and_preprocess_data() -> tuple[pd.DataFrame, Any, Any, TfidfVectorizer]
 
 
 def train_models(
-        X_train: Any, y_train: Any,
+        X_train: Any,
+        y_train: Any,
 ) -> tuple[dict[str, Any], GridSearchCV, GridSearchCV, GridSearchCV]:
     """Train models using hyperparameter tuning."""
     stratified_kfold = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
 
     # Logistic Regression
     log_reg_param_grid = {
-        'C': [0.1, 1, 10], 'penalty': [
+        'C': [0.1, 1, 10],
+        'penalty': [
             'l2',
-        ], 'solver': ['liblinear', 'saga'],
+        ],
+        'solver': ['liblinear', 'saga'],
     }
     grid_search_log_reg = GridSearchCV(
-        estimator=LogisticRegression(max_iter=200), param_grid=log_reg_param_grid,
-        cv=stratified_kfold, n_jobs=-1, verbose=1,
+        estimator=LogisticRegression(max_iter=200),
+        param_grid=log_reg_param_grid,
+        cv=stratified_kfold,
+        n_jobs=-1,
+        verbose=1,
     )
     grid_search_log_reg.fit(X_train, y_train)
 
     # SVM
     svm_param_grid = {
-        'C': [0.1, 1, 10], 'kernel': ['linear', 'rbf'],
+        'C': [0.1, 1, 10],
+        'kernel': ['linear', 'rbf'],
     }
     grid_search_svm = GridSearchCV(
         SVC(probability=True),
@@ -129,8 +151,11 @@ def train_models(
     # Random Forest
     rf_param_grid = {'n_estimators': [100, 200, 300], 'max_depth': [10, 20, 30, None]}
     grid_search_rf = GridSearchCV(
-        RandomForestClassifier(random_state=42), rf_param_grid, cv=stratified_kfold,
-        n_jobs=-1, verbose=1,
+        RandomForestClassifier(random_state=42),
+        rf_param_grid,
+        cv=stratified_kfold,
+        n_jobs=-1,
+        verbose=1,
     )
     grid_search_rf.fit(X_train, y_train)
 
@@ -138,14 +163,21 @@ def train_models(
     best_svm = grid_search_svm.best_estimator_
     best_rf = grid_search_rf.best_estimator_
 
-    return {
-        'Logistic Regression': best_log_reg, 'SVM': best_svm,
-        'Random Forest': best_rf,
-    }, grid_search_log_reg, grid_search_svm, grid_search_rf
+    return (
+        {
+            'Logistic Regression': best_log_reg,
+            'SVM': best_svm,
+            'Random Forest': best_rf,
+        },
+        grid_search_log_reg,
+        grid_search_svm,
+        grid_search_rf,
+    )
 
 
 def retrain_model_with_new_data(
-        new_data_file: str, vectorizer: TfidfVectorizer,
+        new_data_file: str,
+        vectorizer: TfidfVectorizer,
 ) -> None:
     """Retrain models with new data."""
     if not os.path.exists(new_data_file):
@@ -168,7 +200,8 @@ def retrain_model_with_new_data(
     log_reg = load_model(BEST_LOG_REG_FILE) or LogisticRegression(max_iter=1000)
     svm = load_model(BEST_SVM_FILE) or SVC(probability=True)
     rf = load_model(RANDOM_FOREST_MODEL_FILE) or RandomForestClassifier(
-        n_estimators=100, random_state=42,
+        n_estimators=100,
+        random_state=42,
         class_weight='balanced',
     )
 
@@ -190,13 +223,18 @@ def main() -> None:
 
     # Train models and get best models
     X_train, X_test, y_train, y_test = train_test_split(
-        X_tfidf, y, test_size=0.2, random_state=42, stratify=y,
+        X_tfidf,
+        y,
+        test_size=0.2,
+        random_state=42,
+        stratify=y,
     )
     smote = SMOTE(sampling_strategy='auto', random_state=42, k_neighbors=1)
     X_res, y_res = smote.fit_resample(X_train, y_train)
 
     best_models, grid_search_log_reg, grid_search_svm, grid_search_rf = train_models(
-        X_res, y_res,
+        X_res,
+        y_res,
     )
 
     # Save best models
