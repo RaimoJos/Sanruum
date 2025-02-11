@@ -13,11 +13,16 @@ from sanruum.utils.logger import logger
 
 
 class AIResponse:
+    memory: AIMemory
+    processor: AIProcessor
+    faq: FAQHandler
+    response_cache: dict[str, str]
+
     def __init__(self) -> None:
         self.memory = AIMemory()
         self.processor = AIProcessor(self.memory)
         self.faq = FAQHandler()
-        self.response_cache: dict[str, str] = {}  # Type annotation for the cache
+        self.response_cache = {}  # Initialize cache as an empty dictionary
 
     def get_response(self, user_input: str) -> str:
         """
