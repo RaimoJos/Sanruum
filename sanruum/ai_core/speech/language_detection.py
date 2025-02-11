@@ -1,4 +1,3 @@
-# sanruum\ai_core\speech\language_detection.py
 from __future__ import annotations
 
 from typing import cast
@@ -8,7 +7,7 @@ from langdetect import detect
 from sanruum.utils.logger import logger
 
 
-def detect_language(text: str) -> str:
+def detect_language(text: str | None) -> str:
     """Detect the language of a given text."""
     if not isinstance(text, str) or not text.strip():
         logger.warning('Invalid input: Text must be a non-empty string.')
