@@ -10,11 +10,16 @@ from sanruum.utils.logger import logger
 
 def detect_language(text: str) -> str:
     """Detect the language of a given text."""
-    if not text or len(text.split()) < 2:  # Edge case: too short text
+    if not isinstance(text, str) or not text.strip():
+        logger.warning('Invalid input: Text must be a non-empty string.')
+        return 'unknown'
+
+    if len(text.split()) < 2:  # Edge case: too short text
         logger.warning('Text is too short for reliable language detection.')
         return 'unknown'
+
     try:
-        language = cast(str, detect(text))  # Explicitly cast
+        language = cast(str, detect(text))
         logger.info(f'Detected language: {language}')
         return language
     except Exception as e:

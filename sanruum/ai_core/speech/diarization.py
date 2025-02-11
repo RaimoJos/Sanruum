@@ -1,6 +1,7 @@
 # sanruum\ai_core\speech\diarization.py
 from __future__ import annotations
 
+import os.path
 from typing import Any
 
 from pyannote.audio import Pipeline
@@ -17,10 +18,16 @@ class SpeakerDiarization:
             )
         except Exception as e:
             logger.error(f'Failed to load diarization model: {e}')
-            raise
+            raise RuntimeError(
+                f'Failed to load diarization model: {e}',
+            ) from e  # Preserve traceback
 
-    def diarize(self, audio_path: str) -> Any:
+    def diarize(self, audio_path: str) -> Any | None:
         """Identify speakers in an audio file."""
+        if not os.path.exists(audio_path):
+            logger.error(f'File not found: {audio_path}')
+            return None
+
         try:
             diarization = self.pipeline(audio_path)
             logger.info(f'Diarization successful for: {audio_path}')
