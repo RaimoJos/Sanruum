@@ -1,5 +1,4 @@
 # sanruum\utils\audio_utils.py
-# audio_utils.py
 from __future__ import annotations
 
 from typing import cast
@@ -31,6 +30,9 @@ def listen() -> str:
             return ''
         except sr.RequestError:
             logger.error('🔗 Speech recognition service unavailable.')
+            return ''
+        except Exception as e:
+            logger.error(f'Voice input failed:: {e}')
             return ''
 
 
