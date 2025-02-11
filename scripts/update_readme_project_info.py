@@ -1,3 +1,4 @@
+# scripts\update_readme_project_info.py
 from __future__ import annotations
 
 import os
