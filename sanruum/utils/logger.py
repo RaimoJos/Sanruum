@@ -24,8 +24,14 @@ if sys.stdout.encoding.lower() != 'utf-8':
     )
 
 # Log format
-LOG_FORMAT = '%(asctime)s - [%(levelname)s] - %(message)s'
-COLOR_FORMAT = '%(log_color)s%(asctime)s - [%(levelname)s] - %(message)s%(reset)s'
+LOG_FORMAT = (
+    '%(asctime)s - [%(levelname)s] - %(message)s '
+    '- File: %(filename)s - Line: %(lineno)d'
+)
+COLOR_FORMAT = (
+    '%(log_color)s%(asctime)s - [%(levelname)s] '
+    '- %(message)s%(reset)s - File: %(filename)s - Line: %(lineno)d'
+)
 
 # Console handler (colored)
 console_handler = logging.StreamHandler(sys.stdout)
@@ -58,3 +64,21 @@ logger.addHandler(file_handler)
 
 # Prevent duplicate log entries if imported multiple times
 logger.propagate = False
+
+
+# Custom error logging with clickable tracebacks (PyCharm)
+def log_error_with_traceback(exception: Exception) -> None:
+    """Log an error with a full traceback, making it clickable in PyCharm."""
+    exc_type, exc_value, exc_tb = sys.exc_info()
+
+    # Check if exc_tb is not None before accessing its attributes
+    if exc_tb is not None:
+        filename = exc_tb.tb_frame.f_code.co_filename
+        lineno = exc_tb.tb_lineno
+        logger.error(
+            f'An error occurred: {exception} - File: {filename} - Line: {lineno}',
+            exc_info=True,
+        )
+    else:
+        # If no traceback exists, log the error without file/line details
+        logger.error(f'An error occurred: {exception}')
