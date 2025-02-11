@@ -1,3 +1,4 @@
+# sanruum\ai_core\response.py
 from __future__ import annotations
 
 import time
@@ -59,8 +60,11 @@ class AIResponse:
             )
 
             # Ensure response is always a string
-            return ai_response if ai_response \
+            return (
+                ai_response
+                if ai_response
                 else "Sorry, I couldn't process your request."
+            )
 
         except Exception as e:
             logger.error(f'❌ Error processing response: {e}\n{traceback.format_exc()}')
