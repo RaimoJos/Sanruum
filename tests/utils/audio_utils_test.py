@@ -1,3 +1,4 @@
+# tests/utils/audio_utils_test.py
 from __future__ import annotations
 
 from collections.abc import Generator
@@ -13,6 +14,17 @@ from sanruum.utils.audio_utils import speak
 from sanruum.utils.logger import logger
 
 
+# New fixture to reset logger mocks before each test.
+@pytest.fixture(autouse=True)
+def reset_logger_mocks() -> Generator[None, Any, None]:
+    cast(MagicMock, logger.error).reset_mock()
+    cast(MagicMock, logger.warning).reset_mock()
+    yield
+    cast(MagicMock, logger.error).reset_mock()
+    cast(MagicMock, logger.warning).reset_mock()
+
+
+# Test for listen function
 # Test for listen function
 @pytest.fixture
 def mock_listen() -> Generator[MagicMock, Any, None]:
@@ -38,7 +50,6 @@ def test_listen_success(
 
     result = listen()
     assert result == 'Hello'
-    # Explicitly cast the mock to MagicMock before calling assert_called_once
     cast(MagicMock, mock_recognize_google).assert_called_once()
 
 
