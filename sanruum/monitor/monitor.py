@@ -1,3 +1,4 @@
+# sanruum\monitor\monitor.py
 from __future__ import annotations
 
 import os
@@ -40,30 +41,36 @@ class SanruumMonitor:
         ]
 
         if missing_dirs:
-            logger.warning(
-                f"🚨 Missing directories: {', '.join(missing_dirs)}",
-            )
+            logger.warning(f"🚨 Missing directories: {', '.join(missing_dirs)}")
         if missing_files:
             logger.warning(f"🚨 Missing files: {', '.join(missing_files)}")
         if not missing_dirs and not missing_files:
             logger.info('✅ Project structure looks good.')
 
-    def run_subprocess(self, command: list[str]) -> None:
+    @staticmethod
+    def run_subprocess(command: list, name: str) -> None:
+        """Run a subprocess and log the result."""
         try:
-            subprocess.run(command, check=True)
+            result = subprocess.run(command, capture_output=True, text=True, check=True)
+            logger.info(f'✅ {name} completed successfully.')
+            if result.stdout:
+                logger.info(result.stdout)
         except subprocess.CalledProcessError as e:
-            logger.error(f'🚨 Error while running command: {e.cmd}')
-            logger.error(f'Error message: {e.stderr}')
-            raise
+            logger.error(f'❌ {name} failed: {e.stderr}')
 
     def lint_code(self) -> None:
         """Run code formatters and linters."""
         logger.info('🛠 Running code format checks...')
-        subprocess.run(['poetry', 'run', 'black', self.base_dir], check=False)
-        subprocess.run(['isort', self.base_dir], check=False)
-        subprocess.run(['flake8', self.base_dir], check=False)
+        self.run_subprocess(
+            ['poetry', 'run', 'black', self.base_dir],
+            'Black formatter',
+        )
+        self.run_subprocess(['isort', self.base_dir], 'isort')
+        self.run_subprocess(['flake8', self.base_dir], 'Flake8 linter')
 
-    def check_dependencies(self) -> None:
+    @staticmethod
+    def check_dependencies() -> None:
+        """Check if dependencies are installed properly."""
         logger.info('🔧 Checking dependencies...')
         try:
             result = subprocess.run(
@@ -74,37 +81,43 @@ class SanruumMonitor:
             )
             if result.stdout:
                 logger.info('✅ Dependencies are up to date.')
-            else:
-                logger.info('✅ Dependencies are up to date.')
         except subprocess.CalledProcessError as e:
             logger.error(
-                f'🚨 Dependency check failed: {e.stderr}. Run `poetry install`.',
+                f'🚨 Dependency check failed: {e.stderr.strip()}. Run `poetry install`.',
             )
 
-    def check_system_health(self) -> None:
+    @staticmethod
+    def check_system_health() -> None:
+        """Check CPU, memory, and disk usage."""
         cpu_usage = psutil.cpu_percent(interval=1)
         memory_info = psutil.virtual_memory()
         disk_usage = psutil.disk_usage('/')
-        logger.info(f'CPU Usage: {cpu_usage}%')
-        logger.info(f'Memory Usage: {memory_info.percent}%')
-        logger.info(f'Disk Usage: {disk_usage.percent}%')
-        if cpu_usage > 90:
-            logger.warning('🚨 CPU usage is too high!')
-        if memory_info.percent > 85:
-            logger.warning('🚨 Memory usage is too high!')
-        if disk_usage.percent > 90:
-            logger.warning('🚨 Disk usage is too high!')
 
-    @staticmethod
-    def run_tests() -> None:
+        logger.info(f'📊 CPU Usage: {cpu_usage}%')
+        logger.info(f'📊 Memory Usage: {memory_info.percent}%')
+        logger.info(f'📊 Disk Usage: {disk_usage.percent}%')
+
+        if cpu_usage > 90:
+            logger.warning('🚨 High CPU usage detected!')
+        if memory_info.percent > 85:
+            logger.warning('🚨 High memory usage detected!')
+        if disk_usage.percent > 90:
+            logger.warning('🚨 Disk space is critically low!')
+
+    def run_tests(self) -> None:
         """Run automated tests."""
         logger.info('🔍 Running tests...')
-        subprocess.run(['pytest', 'tests/'], check=False)
+        self.run_subprocess(['pytest', 'tests/'], 'Pytest')
 
     def monitor(self) -> None:
-        """Run all checks."""
-        self.check_project_structure()
-        self.lint_code()
-        self.check_dependencies()
-        self.check_system_health()
-        self.run_tests()
+        """Run all system checks."""
+        logger.info('🔄 Running full system monitoring...')
+        try:
+            self.check_project_structure()
+            self.lint_code()
+            self.check_dependencies()
+            self.check_system_health()
+            self.run_tests()
+            logger.info('✅ Monitoring completed successfully!')
+        except Exception as e:
+            logger.error(f'❌ Monitoring encountered an error: {e}')
