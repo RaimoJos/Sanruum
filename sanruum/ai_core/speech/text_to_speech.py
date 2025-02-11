@@ -2,51 +2,33 @@
 from __future__ import annotations
 
 import os
-import tempfile
 from typing import Any
 
-import gtts
-import pyttsx3
+import pygame
+from pydub import AudioSegment
+from pydub.playback import play
 
-from sanruum.utils.logger import logger
+from sanruum.constants import OUTPUT_MP3_FILE
 
 
-class TextToSpeech:
-    def __init__(self, engine: str = 'pyttsx3', language: str = 'en') -> None:
-        self.engine: str = engine
-        self.language: str = language
-        self.speaker: Any | None = None
+def play_audio(filename: Any, method: str = 'pygame') -> Any:
+    """Plays an audio file using the specified method."""
+    if method == 'pygame':
+        pygame.mixer.init()
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
+        while pygame.mixer.music.get_busy():
+            pygame.time.Clock().tick(10)
+    elif method == 'pydub':
+        sound = AudioSegment.from_file(filename, format='mp3')
+        play(sound)
+    elif method == 'system':
+        os.system(f'ffplay -nodisp -autoexit {filename}')
+    else:
+        raise ValueError('Unsupported playback method')
 
-        if self.engine == 'pyttsx3':
-            self.speaker = pyttsx3.init()
-            self.speaker.setProperty('rate', 150)
-            self.speaker.setProperty('volume', 1.0)
 
-    def speak(self, text: str) -> None:
-        """Convert text tp speech."""
-        if self.engine == 'pyttsx3':
-            self._speak_pyttsx3(text)
-        elif self.engine == 'gtts':
-            self._speak_gtts(text)
-        else:
-            logger.error(f'Unsupported TTS engine: {self.engine}')
-
-    def _speak_pyttsx3(self, text: str) -> None:
-        """Offline TTS using pyttsx3."""
-        if self.speaker:
-            self.speaker.say(text)
-            self.speaker.runAndWait()
-
-    def _speak_gtts(self, text: str) -> None:
-        """Google TTS (Generates audio file and plays it)."""
-        tts = gtts.gTTS(text, lang=self.language)
-        # Create a temporary file
-        with tempfile.NamedTemporaryFile(
-                delete=False,
-                suffix='.mp3',
-        ) as temp_file:
-            filename = temp_file.name
-            tts.save(filename)
-            os.system(f'mpg321 {filename}')
-            # Cleanup the temporary file after playing it
-            os.remove(filename)
+# Example usage
+if __name__ == '__main__':
+    filename = OUTPUT_MP3_FILE
+    play_audio(filename, method='pygame')
