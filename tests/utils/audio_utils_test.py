@@ -25,7 +25,6 @@ def reset_logger_mocks() -> Generator[None, Any, None]:
 
 
 # Test for listen function
-# Test for listen function
 @pytest.fixture
 def mock_listen() -> Generator[MagicMock, Any, None]:
     with patch('speech_recognition.Recognizer.listen') as mock_listen:
