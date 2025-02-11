@@ -14,13 +14,6 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Debug pytest rootdir
-        shell: cmd
-        run: |
-          pytest --version
-          pytest --rootdir=D:/a/sanruum/sanruum --collect-only
-
-
       - name: Checkout repository with submodules
         uses: actions/checkout@v4
         with:
@@ -46,11 +39,16 @@ jobs:
           pip install flake8 pytest pytest-cov  # Ensure pytest-cov is installed
           if (Test-Path requirements.txt) { pip install -r requirements.txt }
 
-
       - name: Verify pytest installation
         shell: pwsh
         run: |
           pip show pytest
+
+      - name: Debug pytest rootdir
+        shell: cmd
+        run: |
+          pytest --version
+          pytest --rootdir=D:/a/sanruum/sanruum --collect-only
 
       - name: Lint with flake8
         shell: pwsh
