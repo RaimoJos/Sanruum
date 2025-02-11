@@ -1,4 +1,3 @@
-# sanruum\ai_core\speech\text_to_speech.py
 from __future__ import annotations
 
 import os
@@ -11,19 +10,37 @@ from pydub.playback import play
 from sanruum.constants import OUTPUT_MP3_FILE
 
 
-def play_audio(filename: Any, method: str = 'pygame') -> Any:
-    """Plays an audio file using the specified method."""
+def play_audio(filename: Any, method: str = 'pygame') -> None:
+    """Plays an audio file using the specified method.
+
+    Supported methods:
+      - 'pygame': Uses pygame.mixer for playback.
+      - 'pydub': Uses pydub.playback.
+      - 'system': Uses ffplay via a system command.
+    """
     if method == 'pygame':
-        pygame.mixer.init()
-        pygame.mixer.music.load(filename)
-        pygame.mixer.music.play()
-        while pygame.mixer.music.get_busy():
-            pygame.time.Clock().tick(10)
+        try:
+            # Ensure the mixer is initialized only once
+            if not pygame.mixer.get_init():
+                pygame.mixer.init()
+            pygame.mixer.music.load(filename)
+            pygame.mixer.music.play()
+            while pygame.mixer.music.get_busy():
+                pygame.time.Clock().tick(10)
+        except Exception as e:
+            print(f'Error playing audio with pygame: {e}')
     elif method == 'pydub':
-        sound = AudioSegment.from_file(filename, format='mp3')
-        play(sound)
+        try:
+            sound = AudioSegment.from_file(filename, format='mp3')
+            play(sound)
+        except Exception as e:
+            print(f'Error playing audio with pydub: {e}')
     elif method == 'system':
-        os.system(f'ffplay -nodisp -autoexit {filename}')
+        try:
+            # Enclose filename in quotes in case the path contains spaces
+            os.system(f'ffplay -nodisp -autoexit "{filename}"')
+        except Exception as e:
+            print(f'Error playing audio with system command: {e}')
     else:
         raise ValueError('Unsupported playback method')
 
