@@ -8,6 +8,7 @@ BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, 'data')  # DATA_DIR
 os.makedirs(DATA_DIR, exist_ok=True)
 FAQ_FILE = os.path.join(DATA_DIR, 'faq.json')  # FAQ_FILE
+OUTPUT_MP3_FILE = os.path.join(DATA_DIR, 'output.mp3')  # OUTPUT_MP3
 RESPONSES_FILE = os.path.join(DATA_DIR, 'responses.json')  # RESPONSES_FILE
 SESSION_HISTORY_FILE = os.path.join(
     DATA_DIR,
