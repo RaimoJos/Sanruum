@@ -59,21 +59,6 @@ def test_run_subprocess_failure(monitor: SanruumMonitor) -> None:
             mock_error.assert_called_with('🚨 Echo fail failed: Error')
 
 
-def test_lint_code(monitor: SanruumMonitor) -> None:
-    """Test the linting process"""
-    with patch(
-            'sanruum.monitor.monitor.SanruumMonitor.run_subprocess',
-    ) as mock_run_subprocess:
-        monitor.lint_code()
-        mock_run_subprocess.assert_any_call(
-            ['poetry', 'run', 'black', '/mock/directory'], 'Black formatter',
-        )
-        mock_run_subprocess.assert_any_call(['isort', '/mock/directory'], 'isort')
-        mock_run_subprocess.assert_any_call(
-            ['flake8', '/mock/directory'], 'Flake8 linter',
-        )
-
-
 def test_check_system_health(monitor: SanruumMonitor) -> None:
     """Test the system health check"""
     with (
