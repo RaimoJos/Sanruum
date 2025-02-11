@@ -26,14 +26,19 @@ def test_play_audio_pygame(
 
 
 # Test the 'pydub' playback method
-@mock.patch('pydub.playback.play')
-@mock.patch('pydub.AudioSegment.from_file')
-def test_play_audio_pydub(mock_from_file: MagicMock, mock_play: MagicMock) -> None:
+@mock.patch('sanruum.ai_core.speech.text_to_speech.play')
+@mock.patch('sanruum.ai_core.speech.text_to_speech.AudioSegment.from_file')
+def test_play_audio_pydub(
+        mock_from_file: mock.MagicMock,
+        mock_play: mock.MagicMock,
+) -> None:
     mock_play.return_value = None
+    # Create 1-second silent audio for testing
     mock_from_file.return_value = AudioSegment.silent(duration=1000)
     filename = 'test.mp3'
     play_audio(filename, method='pydub')
     mock_from_file.assert_called_once_with(filename, format='mp3')
+    mock_play.assert_called_once()
     mock_play.assert_called_once()
 
 
