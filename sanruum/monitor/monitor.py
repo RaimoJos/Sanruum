@@ -56,13 +56,13 @@ class SanruumMonitor:
     def run_subprocess(command: list, name: str) -> None:
         """Run a subprocess and log the result."""
         try:
-            logger.info(f"Running command: {' '.join(command)}")  # Add this line
+            logger.info(f"Running command: {' '.join(command)}")
             result = subprocess.run(command, capture_output=True, text=True, check=True)
-            logger.info(f'✅ {name} completed successfully.')
-            if result.stdout:
-                logger.info(result.stdout)
+            logger.info(f'✅ {name} completed successfully.\n{result.stdout}')
         except subprocess.CalledProcessError as e:
-            err_msg = e.stderr if e.stderr else 'Error'
+            err_msg = e.stderr if e.stderr else (
+                e.output if e.output else 'Unknown error'
+            )
             logger.error(f'🚨 {name} failed: {err_msg}')
             raise
 
@@ -105,7 +105,10 @@ class SanruumMonitor:
     def run_tests(self) -> None:
         """Run automated tests."""
         logger.info('🔍 Running tests...')
-        self.run_subprocess(['poetry', 'run', 'pytest'], 'Pytest')
+        try:
+            self.run_subprocess(['poetry', 'run', 'pytest', '-v'], 'Pytest')
+        except subprocess.CalledProcessError as e:
+            logger.error(f'❌ Pytest failed with output:\n{e.stderr}')
 
     def lint_code(self) -> None:
         """Run code linting."""

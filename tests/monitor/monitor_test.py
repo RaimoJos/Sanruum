@@ -70,7 +70,7 @@ def test_run_tests(monitor: SanruumMonitor) -> None:
     ) as mock_run_subprocess:
         monitor.run_tests()
         mock_run_subprocess.assert_called_once_with(
-            ['poetry', 'run', 'pytest'], 'Pytest',
+            ['poetry', 'run', 'pytest', '-v'], 'Pytest',
         )
 
 

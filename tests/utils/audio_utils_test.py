@@ -22,6 +22,11 @@ def mock_recognizer() -> MagicMock:
     return recognizer
 
 
+@pytest.fixture
+def mock_recognizer_listen() -> MagicMock:
+    return MagicMock()
+
+
 def test_listen_success(
         dummy_microphone: MagicMock,
         mock_recognizer: MagicMock,
@@ -30,6 +35,8 @@ def test_listen_success(
     """Test successful audio recognition."""
     mock_recognizer_listen.return_value = MagicMock()
     mock_recognizer.recognize_google.return_value = 'Test'
+    # Ensure the listen method uses our mock:
+    mock_recognizer.listen = mock_recognizer_listen
 
     with patch(
             'sanruum.utils.audio_utils.sr.Recognizer',
@@ -49,6 +56,8 @@ def test_listen_timeout(
 ) -> None:
     """Test handling of timeout error during listening."""
     mock_recognizer_listen.side_effect = sr.WaitTimeoutError
+    # Assign the custom listen fixture to the recognizer's listen method:
+    mock_recognizer.listen = mock_recognizer_listen
 
     with patch(
             'sanruum.utils.audio_utils.sr.Recognizer',
