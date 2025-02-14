@@ -23,9 +23,12 @@ sanruum/
 ├── .treeignore
 ├── README.md
 ├── data/
+│   ├── custom_substitutions.csv
 │   ├── faq.json
+│   ├── ignore_spellcheck_words.txt
 │   ├── intents.json
 │   ├── responses.json
+│   ├── test_text.txt
 │   └── user_memory/
 ├── dist/
 ├── logs/
@@ -74,13 +77,13 @@ sanruum/
 │       └── web_search.py
 ├── scripts/
 │   ├── add_filename.py
+│   ├── check_project.py
 │   ├── generate_tree.py
 │   └── update_readme_project_info.py
 ├── tests/
 │   ├── __init__.py
 │   ├── ai_core/
 │   │   ├── __init__.py
-│   │   ├── ai_response_test.py
 │   │   ├── diarization_test.py
 │   │   ├── language_detection_test.py
 │   │   ├── memory_test.py
@@ -93,15 +96,6 @@ sanruum/
 │   ├── monitor/
 │   │   ├── __init__.py
 │   │   └── monitor_test.py
-│   ├── nlp/
-│   │   ├── __init__.py
-│   │   ├── data_loader_test.py
-│   │   ├── dataset_creator_test.py
-│   │   ├── preprocessing_test.py
-│   │   └── train_model_test.py
-│   ├── scripts/
-│   │   ├── __init__.py
-│   │   └── generate_tree_test.py
 │   └── utils/
 │       ├── __init__.py
 │       └── audio_utils_test.py
