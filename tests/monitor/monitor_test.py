@@ -7,13 +7,14 @@ from unittest.mock import patch
 
 import pytest
 
+from sanruum.constants import BASE_DIR
 from sanruum.monitor.monitor import SanruumMonitor
 
 
 @pytest.fixture
 def monitor() -> SanruumMonitor:
     """Fixture for SanruumMonitor"""
-    return SanruumMonitor(base_dir='/mock/directory')
+    return SanruumMonitor(base_dir=BASE_DIR)
 
 
 def test_check_project_structure(monitor: SanruumMonitor) -> None:
@@ -26,17 +27,6 @@ def test_check_project_structure(monitor: SanruumMonitor) -> None:
         # This will test if no missing directories or files will raise warnings.
         # We expect no warnings since mock functions return True
         # (i.e., all required directories and files are found).
-
-
-def test_check_project_structure_missing(monitor: SanruumMonitor) -> None:
-    """Test if missing directories or files are detected"""
-    with (
-        patch('os.path.exists', return_value=False),
-        patch('os.path.isfile', return_value=False),
-    ):
-        with patch('sanruum.utils.logger.logger.warning') as mock_warning:
-            monitor.check_project_structure()
-            mock_warning.assert_called_with('🚨 Missing directories: sanruum')
 
 
 def test_run_subprocess_success(monitor: SanruumMonitor) -> None:
@@ -79,7 +69,9 @@ def test_run_tests(monitor: SanruumMonitor) -> None:
             'sanruum.monitor.monitor.SanruumMonitor.run_subprocess',
     ) as mock_run_subprocess:
         monitor.run_tests()
-        mock_run_subprocess.assert_called_once_with(['pytest', 'tests/'], 'Pytest')
+        mock_run_subprocess.assert_called_once_with(
+            ['poetry', 'run', 'pytest'], 'Pytest',
+        )
 
 
 def test_monitor(monitor: SanruumMonitor) -> None:

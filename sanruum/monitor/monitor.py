@@ -1,4 +1,4 @@
-# sanruum\monitor\monitor.py
+# sanruum/monitor/monitor.py
 from __future__ import annotations
 
 import os
@@ -8,36 +8,41 @@ import time
 
 import psutil
 
+from sanruum.constants import BASE_DIR
 from sanruum.utils.logger import logger
 
 
 class SanruumMonitor:
-    def __init__(self, base_dir: str) -> None:
-        self.base_dir = base_dir
+    def __init__(self, base_dir: str | None = None) -> None:
+        self.base_dir = base_dir or BASE_DIR  # Use BASE_DIR if not provided
         self.scheduler = sched.scheduler(time.time, time.sleep)
+        print(f'Base directory resolved to: {self.base_dir}')  # Debugging output
 
     def check_project_structure(
             self,
             required_dirs: list[str] | None = None,
             required_files: list[str] | None = None,
     ) -> None:
+        print(f'Checking project structure in {self.base_dir}')
+
         required_dirs = required_dirs or [
             'sanruum',
             'sanruum/ai_core',
             'sanruum/utils',
             'tests',
         ]
-        required_files = required_files or ['README.md', 'setup.py', '.env']
+        required_files = required_files or ['README.md', '.env']
 
+        # Make sure paths are absolute
         missing_dirs = [
-            d
-            for d in required_dirs
-            if not os.path.exists(os.path.join(self.base_dir, d))
+            d for d in required_dirs if not os.path.exists(
+                os.path.join(self.base_dir, d),
+            )
         ]
         missing_files = [
-            f
-            for f in required_files
-            if not os.path.isfile(os.path.join(self.base_dir, f))
+            f for f in required_files if not os.path.isfile(
+                os.path.join(self.base_dir, f),
+            )
         ]
 
         if missing_dirs:
@@ -51,22 +56,15 @@ class SanruumMonitor:
     def run_subprocess(command: list, name: str) -> None:
         """Run a subprocess and log the result."""
         try:
+            logger.info(f"Running command: {' '.join(command)}")  # Add this line
             result = subprocess.run(command, capture_output=True, text=True, check=True)
             logger.info(f'✅ {name} completed successfully.')
             if result.stdout:
                 logger.info(result.stdout)
         except subprocess.CalledProcessError as e:
-            logger.error(f'❌ {name} failed: {e.stderr}')
-
-    def lint_code(self) -> None:
-        """Run code formatters and linters."""
-        logger.info('🛠 Running code format checks...')
-        self.run_subprocess(
-            ['poetry', 'run', 'black', self.base_dir],
-            'Black formatter',
-        )
-        self.run_subprocess(['isort', self.base_dir], 'isort')
-        self.run_subprocess(['flake8', self.base_dir], 'Flake8 linter')
+            err_msg = e.stderr if e.stderr else 'Error'
+            logger.error(f'🚨 {name} failed: {err_msg}')
+            raise
 
     @staticmethod
     def check_dependencies() -> None:
@@ -107,17 +105,25 @@ class SanruumMonitor:
     def run_tests(self) -> None:
         """Run automated tests."""
         logger.info('🔍 Running tests...')
-        self.run_subprocess(['pytest', 'tests/'], 'Pytest')
+        self.run_subprocess(['poetry', 'run', 'pytest'], 'Pytest')
+
+    def lint_code(self) -> None:
+        """Run code linting."""
+        logger.info('🔍 Running linting...')
+        self.run_subprocess(['poetry', 'run', 'flake8', self.base_dir], 'Lint')
 
     def monitor(self) -> None:
         """Run all system checks."""
         logger.info('🔄 Running full system monitoring...')
         try:
             self.check_project_structure()
-            self.lint_code()
             self.check_dependencies()
             self.check_system_health()
             self.run_tests()
             logger.info('✅ Monitoring completed successfully!')
         except Exception as e:
             logger.error(f'❌ Monitoring encountered an error: {e}')
+
+
+if __name__ == '__main__':
+    monitor = SanruumMonitor('.')
