@@ -1,4 +1,4 @@
-# sanruum\ai_core\speech\speech_recognition.py
+# sanruum/ai_core/speech/speech_recognition.py
 from __future__ import annotations
 
 import speech_recognition as sr
@@ -16,11 +16,24 @@ else:
 
 
 class SpeechRecognition:
-    def __init__(self, engine: str = 'whisper', timeout: int = 5) -> None:
+    def __init__(
+            self,
+            engine: str = 'whisper',
+            timeout: int = 5,
+            microphone: sr.Microphone | None = None,
+    ) -> None:
         self.engine: str = engine
         self.recognizer: sr.Recognizer = sr.Recognizer()
-        self.microphone: sr.Microphone = sr.Microphone()
         self.timeout = timeout  # Timeout after X seconds
+
+        if microphone is not None:
+            self.microphone = microphone
+        else:
+            try:
+                self.microphone = sr.Microphone()
+            except OSError as e:
+                logger.error('No default input device available: %s', e)
+                raise e
 
         if self.engine == 'whisper':
             self.model = whisper.load_model('base')
@@ -58,9 +71,7 @@ class SpeechRecognition:
             logger.info(f'Google Speech Recognition thinks you said: {text}')
             return text
         except sr.UnknownValueError:
-            logger.error(
-                'Google Speech Recognition could not understand the audio',
-            )
+            logger.error('Google Speech Recognition could not understand the audio')
             return ''
         except sr.RequestError as e:
             logger.error(f'Google Speech Recognition service error: {e}')
