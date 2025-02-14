@@ -8,36 +8,39 @@ import speech_recognition as sr
 from sanruum.utils.logger import logger
 
 
-def listen() -> str:
-    """Capture audio and convert to text using speech recognition."""
-    recognizer = sr.Recognizer()
-    with sr.Microphone() as source:
-        print('🎤 Listening...')
-        recognizer.adjust_for_ambient_noise(source)
+def listen(timeout: float = 5, microphone: sr.Microphone | None = None) -> str:
+    """
+    Listen to audio input and return recognized text using Google Speech Recognition.
+
+    Accepts an optional `microphone` parameter to allow injection of a dummy microphone
+    (useful for testing environments without an audio device).
+    """
+    r = sr.Recognizer()
+    if microphone is None:
         try:
-            audio = recognizer.listen(source, timeout=5)
-            text: str = cast(str, recognizer.recognize_google(audio))
-            return text
+            microphone = sr.Microphone()
+        except OSError as e:
+            logger.error('No default input device available: %s', e)
+            return ''
+    with microphone as source:
+        print('Listening...')
+        try:
+            audio = r.listen(source, timeout=timeout)
         except sr.WaitTimeoutError:
-            logger.warning('⏳ Listening timed out.')
-            return ''
-        except sr.UnknownValueError:
-            logger.warning('🛑 Could not understand audio.')
-            return ''
-        except sr.RequestError:
-            logger.error('🔗 Speech recognition service unavailable.')
+            logger.error('Listening timed out. No speech detected.')
             return ''
         except Exception as e:
-            # For tests raising plain Exceptions with specific messages
-            if str(e) == 'Listen timeout':
-                logger.warning('⏳ Listening timed out.')
-            elif str(e) == 'Unknown value':
-                logger.warning('🛑 Could not understand audio.')
-            elif str(e) == 'Request error':
-                logger.error('🔗 Speech recognition service unavailable.')
-            else:
-                logger.error(f'Voice input failed:: {e}')
+            logger.error(f'Error during listening: {e}')
             return ''
+    try:
+        result = r.recognize_google(audio)
+        return cast(str, result)
+    except sr.UnknownValueError:
+        logger.error('Google Speech Recognition could not understand the audio')
+        return ''
+    except sr.RequestError as e:
+        logger.error(f'Google Speech Recognition service error: {e}')
+        return ''
 
 
 def speak(text: str) -> None:
