@@ -4,9 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Raimo Jostov <sanruumou@gmail.com>"]
 readme = "README.md"
-
 repository = "https://github.com/RaimoJos/sanruum"
-
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.13"
@@ -16,14 +14,12 @@ colorlog = "^6.9.0"
 fuzzywuzzy = "^0.18.0"
 python-levenshtein = "^0.26.1"
 pyttsx3 = "^2.98"
-
 spacy = "^3.8.4"
 vadersentiment = "^3.3.2"
 transformers = "^4.48.3"
 speechrecognition = "^3.14.1"
 gtts = "^2.5.4"
 langdetect = "^1.0.9"
-poetry-core = "^2.0.1"
 beautifulsoup4 = "^4.13.3"
 pyannote-audio = "^3.3.2"
 torch = "^2.6.0"
@@ -33,12 +29,11 @@ accelerate = "^1.3.0"
 imblearn = "^0.0"
 sentence-transformers = "^3.4.1"
 pytest = "^8.3.4"
-pytest-cov = "^6.0.0"
 pygame = "^2.6.1"
 pydub = "^0.25.1"
 ffmpeg = "^1.4"
 choco = "^1.0.5"
-numpy = "<=2.1"
+numpy = "^2.2.3"
 contractions = "^0.1.73"
 names-dataset = "^3.1.0"
 spellchecker = "^0.4"
@@ -46,7 +41,6 @@ pytest-mock = "^3.14.0"
 openai-whisper = "^20240930"
 pyaudio = "^0.2.14"
 reorder-python-imports = "^3.14.0"
-
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.14.1"
@@ -56,23 +50,22 @@ types-requests = "^2.32.0.20241016"
 pytz = "^2025.1"
 pytest-cov = "^6.0.0"
 
-
 [tool.poetry.scripts]
 sanruum = "sanruum.main:main"
 
 [tool.mypy]
-ignore_missing_imports = true  # Keep this to avoid issues with libraries that lack type hints
-disallow_untyped_calls = true  # Ensure that all calls are typed
-disallow_untyped_defs = true   # Ensure all functions are typed
-check_untyped_defs = true      # Check even functions without type hints
-show_error_codes = true        # Display the error codes for more precise troubleshooting
-warn_unused_ignores = true     # Warn if you have unused `# type: ignore`
-warn_return_any = true         # Warn about functions that return `Any`
+ignore_missing_imports = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+show_error_codes = true
+warn_unused_ignores = true
+warn_return_any = true
 follow_untyped_imports = true
 
 [tool.black]
 line-length = 88
-target-version = ['py311']  # Adjust for the version you're using
+target-version = ['py311']
 
 [tool.pytest.ini_options]
 minversion = "6.0"
