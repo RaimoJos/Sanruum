@@ -6,12 +6,18 @@ import os
 BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
 
+# print(f"DEBUG: BASE_DIR = {BASE_DIR}")  # Debugging output
+
+
 # Data directory
 def ensure_dir(path: str) -> None:
     """Ensure that the given directory exists."""
     os.makedirs(path, exist_ok=True)
 
 
+README_FILE = os.path.join(BASE_DIR, 'README.md')
+TEST_DIR = os.path.join(BASE_DIR, 'tests')
+ensure_dir(TEST_DIR)
 DATA_DIR = os.path.join(BASE_DIR, 'data')  # DATA_DIR
 ensure_dir(DATA_DIR)
 FAQ_FILE = os.path.join(DATA_DIR, 'faq.json')  # FAQ_FILE
@@ -25,6 +31,8 @@ USER_MEMORY_DIR = os.path.join(DATA_DIR, 'user_memory')  # USER_MEMORY_DIR
 ensure_dir(USER_MEMORY_DIR)
 MEMORY_FILE = os.path.join(DATA_DIR, 'ai_memory.json')
 LABEL_MAP_FILE = os.path.join(DATA_DIR, 'label_map.json')
+CUSTOM_SUB_CSV_FILE_PATH = os.path.join(DATA_DIR, 'custom_substitutions.csv')
+IGNORE_SPELLCHECK_WORD_FILE_PATH = os.path.join(DATA_DIR, 'ignore_spellcheck_words.txt')
 
 #  Log directory
 LOG_DIR = os.path.join(BASE_DIR, 'logs')
