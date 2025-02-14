@@ -43,6 +43,7 @@ numpy = "<=2.1"
 contractions = "^0.1.73"
 names-dataset = "^3.1.0"
 spellchecker = "^0.4"
+pytest-mock = "^3.14.0"
 
 [tool.poetry.scripts]
 sanruum = "sanruum.main:main"
