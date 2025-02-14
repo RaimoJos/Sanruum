@@ -44,9 +44,7 @@ contractions = "^0.1.73"
 names-dataset = "^3.1.0"
 spellchecker = "^0.4"
 pytest-mock = "^3.14.0"
-
-[tool.poetry.scripts]
-sanruum = "sanruum.main:main"
+openai-whisper = "^20240930"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -56,6 +54,10 @@ black = "^25.1.0"
 types-requests = "^2.32.0.20241016"
 pytz = "^2025.1"
 pytest-cov = "^6.0.0"
+
+
+[tool.poetry.scripts]
+sanruum = "sanruum.main:main"
 
 [tool.mypy]
 ignore_missing_imports = true  # Keep this to avoid issues with libraries that lack type hints
