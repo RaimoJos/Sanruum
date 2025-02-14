@@ -40,6 +40,9 @@ pydub = "^0.25.1"
 ffmpeg = "^1.4"
 choco = "^1.0.5"
 numpy = "<=2.1"
+contractions = "^0.1.73"
+names-dataset = "^3.1.0"
+spellchecker = "^0.4"
 
 [tool.poetry.scripts]
 sanruum = "sanruum.main:main"
