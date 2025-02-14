@@ -62,18 +62,17 @@ def _return_empty_string_for_invalid_input(
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> str:
-        if 'input_text' in kwargs:
-            input_text = kwargs['input_text']
-        else:
-            try:
-                input_text = args[0]
-            except IndexError as err:
-                logger.exception('No appropriate positional argument is provided.')
-                raise err
-        if input_text is None or not input_text.strip():
+        try:
+            input_text = kwargs.get('input_text', args[0] if args else None)
+        except IndexError:
+            logger.exception(f'Function {func.__name__} called without valid input.')
             return ''
-        else:
-            return func(*args, **kwargs)
+
+        if input_text is None or not input_text.strip():
+            logger.debug(f'Function {func.__name__} received empty input.')
+            return ''
+
+        return func(*args, **kwargs)
 
     return wrapper
 
@@ -134,17 +133,12 @@ def remove_url(input_text: str) -> str:
 
 @_return_empty_string_for_invalid_input
 def remove_punctuation(input_text: str, punctuations: str | None = None) -> str:
-    """
-    Removes all punctuations from a string,
-     as defined by string.punctuation or a custom list.
-    For reference, Python's string.punctuation is equivalent to
-     '!"#$%&\'()*+,-./:;<=>?@[\\]^_{|}~'
-    """
+    """Removes all punctuations from input text"""
     if punctuations is None:
         import string
         punctuations = string.punctuation
-    processed_text = input_text.translate(str.maketrans('', '', punctuations))
-    return processed_text
+
+    return input_text.translate(str.maketrans('', '', punctuations))
 
 
 @_return_empty_string_for_invalid_input
@@ -154,10 +148,15 @@ def remove_special_character(
 ) -> str:
     """ Removes special characters """
     if special_characters is None:
-        # TODO: add more special characters
-        special_characters = 'å¼«¥ª°©ð±§µæ¹¢³¿®ä£'
-    processed_text = input_text.translate(str.maketrans('', '', special_characters))
-    return processed_text
+        special_characters = 'å¼«¥ª°©ð±§µæ¹¢³¿®ä£' \
+                             '¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿' \
+                             '×÷‐‑‒–—―‖‘’‚‛“”„‟†‡•‣․‥…‰′″‴' \
+                             '‹›‼‽‾⁄⁂⁎⁑⁓⁕⁖⁗⁘⁙⁚⁛⁜⁝⁞' \
+                             '™℠℡ℤℕℝℚℙℂℵℶℷℸ⅀⅁⅂⅃⅄ⅅⅆⅇⅈⅉ' \
+                             '←↑→↓↔↕↖↗↘↙↚↛↜↝↞↟↠↡↢↣' \
+                             '↤↥↦↧↨↩↪↫↬↭↮↯↰↱↲↳↴↵↶↷↸↹'
+
+    return input_text.translate(str.maketrans('', '', special_characters))
 
 
 @_return_empty_string_for_invalid_input
@@ -212,7 +211,7 @@ def remove_stopword(
 
 @_return_empty_string_for_invalid_input
 def remove_email(input_text: str) -> str:
-    """ Remove email in the input text """
+    """ Remove email addresses from input text """
     return EMAIL_REGEX.sub('', input_text)
 
 
@@ -352,16 +351,17 @@ def lemmatize_word(
 
 
 @_return_empty_list_for_invalid_input
-def preprocess_text(input_text_or_list: str | list[str]) -> list[str]:
-    """ Preprocess the input text or list of text by running various cleaning steps """
-    if isinstance(input_text_or_list, str):
-        input_text_or_list = word_tokenize(input_text_or_list)
+def preprocess_text(input_text: str) -> list[str]:
+    """
+    Preprocess input text by applying tokenization,
+     stopword removal, stemming, and lemmatization"""
+    tokens: list[str] = word_tokenize(input_text)
+    tokens = remove_stopword(tokens)
+    tokens = stem_word(tokens)
+    tokens = lemmatize_word(tokens)
 
-    processed_text = input_text_or_list
-    processed_text = remove_stopword(processed_text)
-    processed_text = stem_word(processed_text)
-    processed_text = lemmatize_word(processed_text)
-    return processed_text
+    # Explicitly return a list to satisfy MyPy
+    return list(tokens)
 
 
 def convert_str_list_to_lower(input_text_list: list[str]) -> list[str]:
