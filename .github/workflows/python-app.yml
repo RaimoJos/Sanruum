@@ -20,46 +20,47 @@ jobs:
           submodules: true
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4  # Updated to latest version
         with:
           python-version: "3.11"
 
       - name: Cache Poetry dependencies
         uses: actions/cache@v3
         with:
-          path: ~/.cache/pip
+          path: |
+            ~/.cache/pypoetry
+            ~/.cache/pip
           key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
           restore-keys: |
             ${{ runner.os }}-poetry-
 
+      - name: Install Poetry and dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry install --no-interaction --no-root  # Ensures all dependencies are installed
 
-      #      - name: Install dependencies
-      #        shell: pwsh
-      #        run: |
-      #          python -m pip install --upgrade pip
-      #          pip install poetry
-      #          poetry install
-
-      - name: Debug pytest rootdir
+      - name: Verify pytest installation
         shell: cmd
         run: |
-          pytest --version
-          pytest --rootdir=D:/a/sanruum/sanruum --collect-only
+          poetry run pytest --version
+          poetry run pytest --rootdir=D:/a/sanruum/sanruum --collect-only
 
       - name: Lint with flake8
         shell: pwsh
         run: |
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
       - name: Clear pytest cache
         shell: cmd
         run: |
-          pytest --cache-clear
+          poetry run pytest --cache-clear
 
       - name: Test with pytest
         shell: cmd
-        working-directory: D:/a/sanruum/sanruum  # 👈 Set correct working directory
+        working-directory: D:/a/sanruum/sanruum  # Ensures correct directory
         run: |
-          pytest --cache-clear
-          pytest --cov=sanruum --cov-report=term-missing
+          poetry run pytest --cache-clear
+          poetry run pytest --cov=sanruum --cov-report=term-missing
