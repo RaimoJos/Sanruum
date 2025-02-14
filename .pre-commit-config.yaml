@@ -17,7 +17,6 @@ repos:
     rev: v3.14.0
     hooks:
       - id: reorder-python-imports
-        exclude: ^(pre_commit/resources/|testing/resources/python3_hooks_repo/)
         args: [ "--py39-plus", "--add-import", "from __future__ import annotations" ]
   - repo: https://github.com/asottile/add-trailing-comma
     rev: v3.1.0
@@ -32,12 +31,6 @@ repos:
     rev: v2.3.2
     hooks:
       - id: autopep8
-        # disable for troubleshooting
-  - repo: https://github.com/asottile/add-trailing-comma
-    rev: v3.1.0
-    hooks:
-      - id: add-trailing-comma
-        # disable for troubleshooting
   - repo: https://github.com/PyCQA/flake8
     rev: 7.1.1
     hooks:
@@ -46,5 +39,4 @@ repos:
     rev: v1.15.0
     hooks:
       - id: mypy
-        additional_dependencies: [ types-pyyaml ]
-        exclude: ^testing/resources/
+        additional_dependencies: [ types-six ]
