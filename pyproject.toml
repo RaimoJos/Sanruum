@@ -77,6 +77,10 @@ testpaths = [
     "tests"
 ]
 
+[tool.isort]
+profile = "black"
+known_third_party = ["contractions", "names_dataset", "nltk", "spellchecker"]
+known_first_party = ["sanruum"]
 
 [build-system]
 requires = ["poetry-core"]
