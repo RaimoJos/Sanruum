@@ -11,14 +11,13 @@ sanruum/
 │   ├── ISSUE_TEMPLATE/
 │   │   ├── bug_report.md
 │   │   └── feature_request.md
-│   ├── dependabot.yml
 │   └── workflows/
-│       ├── python-app.yml
-│       └── stale.yml
+│       └── python-app.yml
 ├── .gitignore
 ├── .idea/
 ├── .mypy_cache/
 ├── .pre-commit-config.yaml
+├── .pre-commit-hooks.yaml
 ├── .pytest_cache/
 ├── .treeignore
 ├── README.md
@@ -77,7 +76,6 @@ sanruum/
 │       └── web_search.py
 ├── scripts/
 │   ├── add_filename.py
-│   ├── check_project.py
 │   ├── generate_tree.py
 │   └── update_readme_project_info.py
 ├── tests/
@@ -103,3 +101,10 @@ sanruum/
     └── langdetect.pyi
 ```
 <!-- END_TREE -->
+
+# Info
+
+```bash
+git add -A
+git commit -m "Fix imports"
+```
