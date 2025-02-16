@@ -65,20 +65,10 @@ class AIResponse:
                 self.response_cache[user_input] = faq_answer
                 return faq_answer
 
-            # If FAQ returns a falsey value, return a fallback message
-            if not faq_answer or not faq_answer.strip():
-                logger.debug(
-                    '❌ No FAQ match found, skipping memory storage for this query.',
-                )
-                return (
-                    "I'm not sure about that. Would you like me "
-                    'to help you find more information?'
-                )
-
-            # If FAQ wasn't helpful, process via AI Processor
+            # If no valid FAQ answer, proceed to AI processing
             ai_response = self.processor.process_input(user_input)
 
-            # Store response if valid and not redundant
+            # Store processor response if valid and not in fallback responses
             if (
                     ai_response and ai_response
                     not in RESPONSES[PERSONALITY_MODE]['fallback']
