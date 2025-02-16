@@ -3,19 +3,21 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import threading
 import time
 from typing import TypedDict
 
 from sanruum.ai_core.response import AIResponse
-from sanruum.constants import BASE_DIR
 from sanruum.constants import SESSION_HISTORY_FILE
-from sanruum.monitor.monitor import SanruumMonitor
 from sanruum.nlp.utils.preprocessing import preprocess_text
 from sanruum.utils.audio_utils import listen
 from sanruum.utils.audio_utils import speak
 from sanruum.utils.logger import logger
 from sanruum.utils.web_search import search_web
+
+# from sanruum.constants import BASE_DIR
+# from sanruum.monitor.monitor import SanruumMonitor
 
 history_lock = threading.Lock()
 
@@ -31,8 +33,8 @@ class SessionStats(TypedDict):
 
 class SanruumAI:
     def __init__(self) -> None:
-        self.monitor = SanruumMonitor(BASE_DIR)
-        self.monitor.monitor()
+        # self.monitor = SanruumMonitor(BASE_DIR)
+        # self.monitor.monitor()
         self.memory: dict[str, str] = {}
         self.tasks: list[str] = []
         self.personality = 'default'
@@ -54,24 +56,27 @@ class SanruumAI:
             try:
                 with open(SESSION_HISTORY_FILE, encoding='utf-8') as f:
                     self.session_stats = json.load(f)
-            except (json.JSONDecodeError, FileNotFoundError):
-                pass
+            except (json.JSONDecodeError, FileNotFoundError) as e:
+                logger.error(f'Error loading session history: {e}')
 
     def process_command(self, command: str) -> str:
         """Process user command using NLP preprocessing."""
-        clean_command = preprocess_text(command)
+        clean_command = ' '.join(preprocess_text(command))  # Ensure it's a string
         if 'stats' in clean_command:
             self.print_stats()
             return 'Displaying stats...'
+
         handlers = {
             'search': self.web_search,
             'remember': self.remember,
             'execute': self.execute_task,
             'set_mode': self.set_mode,
         }
+
         for key, handler in handlers.items():
-            if key in clean_command:
+            if re.match(rf'^{key}\b', clean_command):  # `clean_command` is now a string
                 return handler(clean_command)
+
         return 'Command not recognized.'
 
     @staticmethod
@@ -82,7 +87,8 @@ class SanruumAI:
 
     def remember(self, data: str) -> str:
         """Store cleaned memory for better AI retrieval."""
-        clean_data = preprocess_text(data)
+        clean_data = ' '.join(preprocess_text(data))  # Convert list to string
+
         try:
             key, value = map(str.strip, clean_data.split(':', 1))
             self.memory[key] = value
@@ -204,14 +210,21 @@ class SanruumAI:
                     logger.info('Shutting down Sanruum AI. Goodbye! 👋')
                     break
                 if user_input.lower() == 'stats':
-                    print(json.dumps(self.session_stats, indent=2))
+                    self.print_stats()
                     continue
                 start_time = time.time()
                 response = self.ai.get_response(clean_input)
                 if response in ["I don't know", "I'm not sure."]:
                     web_result = search_web(user_input)
                     if web_result:
-                        self.ai.memory.store_knowledge(user_input, web_result)
+                        # Use AIResponse memory if available;
+                        # otherwise, fallback, fallback to self.memory
+                        if hasattr(
+                                self.ai, 'memory',
+                        ) and hasattr(self.ai.memory, 'store_knowledge'):
+                            self.ai.memory.store_knowledge(user_input, web_result)
+                        else:
+                            self.memory[user_input] = web_result
                         response = f'I found this online: {web_result}'
                 response_time = time.time() - start_time
                 logger.info(f'🤖 Sanruum AI: {response}')
@@ -229,5 +242,14 @@ class SanruumAI:
                 logger.info('\nGoodbye! 👋')
                 break
             except Exception as e:
-                logger.error(f'An error occurred: {e}')
+                logger.error(f'An error occurred during execution: {e}')
                 print('An error occurred. Please try again.')
+
+
+def main() -> None:
+    sanruum = SanruumAI()
+    sanruum.run()
+
+
+if __name__ == '__main__':
+    main()

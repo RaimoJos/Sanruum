@@ -55,23 +55,36 @@ def get_name_dataset() -> NameDataset:
 _DEFAULT_STOP_WORDS = set(stopwords.words('english'))
 
 
+# --------------------------
+# Decorators
+# --------------------------
+
 def _return_empty_string_for_invalid_input(
         func: Callable[..., str],
 ) -> Callable[..., str]:
-    """ Return empty string if the input is None or empty/whitespace """
+    """Return empty string if the input is None or empty/whitespace."""
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> str:
-        try:
-            input_text = kwargs.get('input_text', args[0] if args else None)
-        except IndexError:
-            logger.exception(f'Function {func.__name__} called without valid input.')
+        # Check for 'input_text' in kwargs or first positional argument
+        input_text = kwargs.get('input_text', args[0] if args else None)
+        if input_text is None or not str(input_text).strip():
             return ''
+        return func(*args, **kwargs)
 
-        if input_text is None or not input_text.strip():
-            logger.debug(f'Function {func.__name__} received empty input.')
-            return ''
+    return wrapper
 
+
+def _return_empty_list_or_string_for_invalid_input(
+        func: Callable[..., list[str] | str],
+) -> Callable[..., list[str] | str]:
+    """Return empty list or empty string if the input is invalid."""
+
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Any) -> list[str] | str:
+        input_text = kwargs.get('input_text', args[0] if args else None)
+        if input_text is None or not str(input_text).strip():
+            return '' if kwargs.get('return_string', False) else []
         return func(*args, **kwargs)
 
     return wrapper
@@ -80,7 +93,7 @@ def _return_empty_string_for_invalid_input(
 def _return_empty_list_for_invalid_input(
         func: Callable[..., list[str]],
 ) -> Callable[..., list[str]]:
-    """ Return empty list if the input is None or empty """
+    """Return empty list if the input is None or empty."""
 
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> list[str]:
@@ -100,44 +113,46 @@ def _return_empty_list_for_invalid_input(
     return wrapper
 
 
+# --------------------------
+# String functions (using _return_empty_string_for_invalid_input)
+# --------------------------
+
 @_return_empty_string_for_invalid_input
 def to_lower(input_text: str) -> str:
-    """ Convert input text to lower case """
+    """Convert input text to lower case."""
     return input_text.lower()
 
 
 @_return_empty_string_for_invalid_input
 def to_upper(input_text: str) -> str:
-    """ Convert input text to upper case """
+    """Convert input text to upper case."""
     return input_text.upper()
 
 
 @_return_empty_string_for_invalid_input
 def remove_number(input_text: str) -> str:
-    """ Remove number in the input text """
-    processed_text = re.sub(r'\d+', '', input_text)
-    return processed_text
+    """Remove numbers from the input text."""
+    return re.sub(r'\d+', '', input_text)
 
 
 @_return_empty_string_for_invalid_input
 def remove_itemized_bullet_and_numbering(input_text: str) -> str:
-    """ Remove bullets or numbering in itemized input """
+    """Remove bullets or numbering in itemized input."""
     return ITEMIZED_REGEX.sub(' ', input_text)
 
 
 @_return_empty_string_for_invalid_input
 def remove_url(input_text: str) -> str:
-    """ Remove url in the input text """
+    """Remove URLs from the input text."""
     return URL_REGEX.sub('', input_text)
 
 
 @_return_empty_string_for_invalid_input
 def remove_punctuation(input_text: str, punctuations: str | None = None) -> str:
-    """Removes all punctuations from input text"""
+    """Remove all punctuations from input text."""
     if punctuations is None:
         import string
         punctuations = string.punctuation
-
     return input_text.translate(str.maketrans('', '', punctuations))
 
 
@@ -146,46 +161,49 @@ def remove_special_character(
         input_text: str,
         special_characters: str | None = None,
 ) -> str:
-    """ Removes special characters """
+    """Remove special characters from the input text."""
     if special_characters is None:
-        special_characters = 'å¼«¥ª°©ð±§µæ¹¢³¿®ä£' \
-                             '¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿' \
-                             '×÷‐‑‒–—―‖‘’‚‛“”„‟†‡•‣․‥…‰′″‴' \
-                             '‹›‼‽‾⁄⁂⁎⁑⁓⁕⁖⁗⁘⁙⁚⁛⁜⁝⁞' \
-                             '™℠℡ℤℕℝℚℙℂℵℶℷℸ⅀⅁⅂⅃⅄ⅅⅆⅇⅈⅉ' \
-                             '←↑→↓↔↕↖↗↘↙↚↛↜↝↞↟↠↡↢↣' \
-                             '↤↥↦↧↨↩↪↫↬↭↮↯↰↱↲↳↴↵↶↷↸↹'
-
+        special_characters = (
+            'å¼«¥ª°©ð±§µæ¹¢³¿®ä£'
+            '¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿'
+            '×÷‐‑‒–—―‖‘’‚‛“”„‟†‡•‣․‥…‰′″‴'
+            '‹›‼‽‾⁄⁂⁎⁑⁓⁕⁖⁗⁘⁙⁚⁛⁜⁝⁞'
+            '™℠℡ℤℕℝℚℙℂℵℶℷℸ⅀⅁⅂⅃⅄ⅅⅆⅇⅈⅉ'
+            '←↑→↓↔↕↖↗↘↙↚↛↜↝↞↟↠↡↢↣'
+            '↤↥↦↧↨↩↪↫↬↭↮↯↰↱↲↳↴↵↶↷↸↹'
+        )
     return input_text.translate(str.maketrans('', '', special_characters))
 
 
 @_return_empty_string_for_invalid_input
 def keep_alpha_numeric(input_text: str) -> str:
-    """ Remove any character except alphanumeric characters """
+    """Remove any character except alphanumeric characters."""
     return ''.join(c for c in input_text if c.isalnum())
 
 
 @_return_empty_string_for_invalid_input
 def remove_whitespace(input_text: str, remove_duplicate_whitespace: bool = True) -> str:
-    """ Removes leading, trailing, and (optionally) duplicated whitespace """
+    """Remove leading, trailing, and optionally duplicate whitespace."""
     if remove_duplicate_whitespace:
         return ' '.join(re.split(r'\s+', input_text.strip(), flags=re.UNICODE))
     return input_text.strip()
 
 
+# --------------------------
+# Functions that remain list-oriented
+# --------------------------
+
 @_return_empty_string_for_invalid_input
 def expand_contraction(input_text: str) -> str:
-    """ Expand contractions in input text """
+    """Expand contractions in input text."""
     return str(contractions.fix(input_text))
 
 
 @_return_empty_string_for_invalid_input
 def normalize_unicode(input_text: str) -> str:
-    """ Normalize unicode data to remove umlauts, and accents, etc. """
-    processed_tokens = normalize('NFKD', input_text).encode(
-        'ASCII', 'ignore',
-    ).decode('utf8')
-    return processed_tokens
+    """Normalize unicode data to remove accents and umlauts."""
+    processed = normalize('NFKD', input_text).encode('ASCII', 'ignore').decode('utf8')
+    return processed
 
 
 @_return_empty_list_for_invalid_input
@@ -193,7 +211,7 @@ def remove_stopword(
         input_text_or_list: list[str],
         stop_words: set | None = None,
 ) -> list[str]:
-    """ Remove stop words """
+    """Remove stop words from a list of tokens."""
     if stop_words is None:
         stop_words = _DEFAULT_STOP_WORDS
     if isinstance(stop_words, list):
@@ -204,44 +222,44 @@ def remove_stopword(
     else:
         processed_tokens = [
             token for token in input_text_or_list
-            if (token not in stop_words and token is not None and len(token) > 0)
+            if token not in stop_words and token is not None and len(token) > 0
         ]
     return processed_tokens
 
 
 @_return_empty_string_for_invalid_input
 def remove_email(input_text: str) -> str:
-    """ Remove email addresses from input text """
+    """Remove email addresses from input text."""
     return EMAIL_REGEX.sub('', input_text)
 
 
 @_return_empty_string_for_invalid_input
 def remove_phone_number(input_text: str) -> str:
-    """ Remove phone number in the input text """
+    """Remove phone numbers from input text."""
     return PHONE_REGEX.sub('', input_text)
 
 
 @_return_empty_string_for_invalid_input
 def remove_ssn(input_text: str) -> str:
-    """ Remove social security number in the input text """
+    """Remove social security numbers from input text."""
     return SSN_REGEX.sub('', input_text)
 
 
 @_return_empty_string_for_invalid_input
 def remove_credit_card_number(input_text: str) -> str:
-    """ Remove credit card number in the input text """
+    """Remove credit card numbers from input text."""
     return CREDIT_CARD_REGEX.sub('', input_text)
 
 
 @_return_empty_list_for_invalid_input
 def remove_name(input_text_or_list: str | list[str]) -> list[str]:
-    """ Remove names from the input text using the NameDataset. """
-    nd = get_name_dataset()  # Use cached NameDataset instance
+    """Remove names from input text using the NameDataset."""
+    nd = get_name_dataset()  # Cached instance
     try:
         first_names = {name.lower() for name in nd.first_names.keys()}
         last_names = {name.lower() for name in nd.last_names.keys()}
     except Exception as err:
-        logger.error('Error accessing name attributes from NameDataset: %s', err)
+        logger.error('Error accessing name attributes: %s', err)
         first_names, last_names = set(), set()
 
     tokens = word_tokenize(input_text_or_list) if isinstance(
@@ -262,27 +280,20 @@ def check_spelling(
         ignore_word_file_path: str | Path = IGNORE_SPELLCHECK_WORD_FILE_PATH,
         acronyms: set[str] | None = None,
 ) -> str:
-    """ Check and correct spellings of the text list """
+    """Check and correct spelling in the input."""
     if input_text_or_list is None or len(input_text_or_list) == 0:
         return ''
     spelling_checker = SpellChecker(language=lang, distance=1)
     spelling_checker.word_frequency.load_text_file(ignore_word_file_path)
     if acronyms is None:
-        # Define a default set of acronym; extend this as needed
         acronyms = {'NASA', 'FBI', 'CIA', 'SQL', 'HTTP', 'HTTPS'}
     if isinstance(input_text_or_list, str):
-        if not input_text_or_list.islower():
-            input_text_or_list = input_text_or_list.lower()
-        tokens = word_tokenize(input_text_or_list)
+        tokens = tokenize_word(input_text_or_list.lower())
     else:
-        tokens = [
-            token.lower()
-            for token in input_text_or_list if token is not None and len(token) > 0
-        ]
+        tokens = [token.lower() for token in input_text_or_list if token]
     misspelled = spelling_checker.unknown(tokens)
     corrected_tokens = []
     for token in tokens:
-        # Skip acronym correction
         if token.upper() in acronyms:
             corrected_tokens.append(token)
             continue
@@ -295,20 +306,23 @@ def check_spelling(
 
 
 def tokenize_word(input_text: str) -> list[str]:
-    """ Converts a text into a list of word tokens """
+    """Convert text into a list of word tokens."""
     if input_text is None or len(input_text) == 0:
         return []
-    # Ensure word_tokenize returns a list of strings
     return [str(token) for token in word_tokenize(input_text)]
 
 
+_PUNKT_SENTENCE_TOKENIZER = PunktSentenceTokenizer()
+
+
 def tokenize_sentence(input_text: str) -> list[str]:
-    """ Converts a text into a list of sentence tokens """
-    if input_text is None or len(input_text) == 0:
+    """Convert text into a list of sentence tokens."""
+    if not input_text:
         return []
-    tokenizer = PunktSentenceTokenizer()
-    # Ensure tokenizer.tokenize returns a list of strings
-    return [str(sentence) for sentence in tokenizer.tokenize(input_text)]
+    return [
+        str(sentence) for sentence
+        in _PUNKT_SENTENCE_TOKENIZER.tokenize(input_text)
+    ]
 
 
 @_return_empty_list_for_invalid_input
@@ -316,7 +330,7 @@ def stem_word(
         input_text_or_list: list[str],
         stemmer: PorterStemmer | SnowballStemmer | LancasterStemmer | None = None,
 ) -> list[str]:
-    """ Stem each token in a text """
+    """Stem each token in the input."""
     if stemmer is None:
         stemmer = PorterStemmer()
     if isinstance(input_text_or_list, str):
@@ -324,9 +338,9 @@ def stem_word(
         processed_tokens = [stemmer.stem(token) for token in tokens]
     else:
         processed_tokens = [
-            stemmer.stem(
-                token,
-            ) for token in input_text_or_list if token is not None and len(token) > 0
+            stemmer.stem(token)
+            for token in input_text_or_list
+            if token is not None and len(token) > 0
         ]
     return processed_tokens
 
@@ -336,7 +350,7 @@ def lemmatize_word(
         input_text_or_list: str | list[str],
         lemmatizer: WordNetLemmatizer | None = None,
 ) -> list[str]:
-    """ Lemmatize each token in a text by finding its base form """
+    """Lemmatize each token in the input."""
     if lemmatizer is None:
         lemmatizer = WordNetLemmatizer()
     if isinstance(input_text_or_list, str):
@@ -344,26 +358,52 @@ def lemmatize_word(
         processed_tokens = [lemmatizer.lemmatize(token) for token in tokens]
     else:
         processed_tokens = [
-            lemmatizer.lemmatize(token)
-            for token in input_text_or_list if token is not None and len(token) > 0
+            lemmatizer.lemmatize(token) for token in input_text_or_list if
+            token is not None and len(token) > 0
         ]
     return processed_tokens
 
 
-@_return_empty_list_for_invalid_input
-def preprocess_text(input_text: str) -> list[str]:
+@_return_empty_list_or_string_for_invalid_input
+def preprocess_text(
+        input_text: str,
+        return_string: bool = False,
+) -> list[str] | str:
     """
-    Preprocess input text by applying tokenization,
-     stopword removal, stemming, and lemmatization"""
+    Preprocess input text by applying cleaning steps:
+      - Expand contractions
+      - Normalize unicode
+      - Remove URLs and email addresses
+      - Remove punctuation
+      - Tokenize the text
+      - Remove stopwords
+      - Apply stemming and lemmatization
+
+    Parameters:
+        input_text (str): The text to preprocess.
+        return_string (bool): If True, return a single string;
+         otherwise, return a list of tokens.
+    """
+    # Expand contractions and normalize text
+    input_text = expand_contraction(input_text)
+    input_text = normalize_unicode(input_text)
+    input_text = remove_url(input_text)
+    input_text = remove_email(input_text)
+    input_text = remove_punctuation(input_text)
+
+    # Tokenize and remove stopwords
     tokens: list[str] = word_tokenize(input_text)
     tokens = remove_stopword(tokens)
+
+    # Apply stemming and lemmatization
     tokens = stem_word(tokens)
     tokens = lemmatize_word(tokens)
 
-    # Explicitly return a list to satisfy MyPy
-    return list(tokens)
+    if return_string:
+        return ' '.join(tokens)
+    return tokens
 
 
 def convert_str_list_to_lower(input_text_list: list[str]) -> list[str]:
-    """ Convert a list of strings into lower case """
+    """Convert a list of strings to lower case."""
     return [text.lower() for text in input_text_list]
