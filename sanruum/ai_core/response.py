@@ -22,7 +22,8 @@ class AIResponse:
         self.memory = AIMemory()
         self.processor = AIProcessor(self.memory)
         self.faq = FAQHandler()
-        self.response_cache = {}  # Initialize cache as an empty dictionary
+        # Initialize cache as an empty dictionary (consider cache eviction if needed)
+        self.response_cache = {}
 
     def get_response(self, user_input: str | list) -> str:
         """
@@ -52,13 +53,15 @@ class AIResponse:
             # Check memory for relevant knowledge
             if known_info := self.memory.find_relevant_knowledge(user_input):
                 logger.debug(f'📚 Memory response found: {known_info}')
+                self.response_cache[user_input] = known_info
                 return known_info
 
             # Check FAQ
             faq_answer = self.faq.get_answer(user_input)
-            if faq_answer and faq_answer != "I'm sorry, I couldn't find an answer.":
+            default_faq_no_answer = "I'm sorry, I couldn't find an answer."
+
+            if faq_answer and faq_answer != default_faq_no_answer:
                 logger.debug(f'🔍 FAQ response found: {faq_answer}')
-                self.memory.store_knowledge(user_input, faq_answer)
                 self.response_cache[user_input] = faq_answer
                 return faq_answer
 
@@ -79,8 +82,9 @@ class AIResponse:
                 f'⏱️ Response time: {(time.perf_counter() - start_time) * 1000:.2f}ms',
             )
 
-            return ai_response or "Sorry, I couldn't process your request."
-
+            final_response = ai_response or "Sorry, I couldn't process your request."
+            logger.debug(f'🤖 Final AI response: {final_response}')
+            return final_response
         except Exception as e:
             logger.error(f'❌ Error processing response: {e}\n{traceback.format_exc()}')
             return "I'm experiencing some issues at the moment. Please try again later!"
