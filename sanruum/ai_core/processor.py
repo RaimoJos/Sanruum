@@ -4,7 +4,6 @@ from __future__ import annotations
 import random
 import time
 
-import spacy
 import torch
 from transformers import pipeline
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
@@ -26,16 +25,11 @@ classifier = pipeline(
     device=0 if device.type == 'cuda' else -1,
 )
 
-try:
-    nlp = spacy.load('en_core_web_sm')
-except Exception as err:
-    logger.error(f'Failed to load Spacy NLP model: {err}')
-    nlp = None
-
 
 class AIProcessor:
     def __init__(self, memory: AIMemory) -> None:
         self.memory = memory
+        # Reserved for future use: managing conversation context
         self.context: list[str] = []
 
     def process_input(self, user_input: str) -> str:
@@ -55,7 +49,13 @@ class AIProcessor:
             return f'Reminder: {reminders[0]}'
 
         # First, extract intents.
+        intents_start = time.perf_counter()
         intents = self.extract_intents(user_input)
+        logger.debug(
+            f'Extracted intents: {intents} (Time:'
+            f' {time.perf_counter() - intents_start:.4f}s)',
+        )
+
         # Fixed intent responses expected by tests.
         intent_responses = {
             'greeting': ['Hello!'],
@@ -72,7 +72,13 @@ class AIProcessor:
                 return random.choice(intent_responses[intent])
 
         # If no matching fixed intent is found, analyze sentiment.
+        sentiment_start = time.perf_counter()
         sentiment = self.analyze_sentiment(user_input)
+        logger.debug(
+            f'Analyzed sentiment: {sentiment}'
+            f' (Time: {time.perf_counter() - sentiment_start:.4f}s)',
+        )
+
         if sentiment == 'negative':
             response = "I'm sorry you're feeling that way. How can I help?"
         elif sentiment == 'positive':
@@ -100,6 +106,7 @@ class AIProcessor:
         ]
         try:
             result = classifier(text, candidate_labels)
+            logger.debug(f'Raw classifier output: {result}')
             return [
                 label
                 for label, score in zip(result['labels'], result['scores'])
@@ -115,6 +122,7 @@ class AIProcessor:
         Analyzes sentiment and returns 'positive', 'neutral', or 'negative'.
         """
         scores = analyzer.polarity_scores(text)
+        logger.debug(f'Sentiment scores: {scores}')
         if scores['compound'] >= 0.05:
             return 'positive'
         elif scores['compound'] <= -0.05:
