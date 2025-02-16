@@ -30,52 +30,36 @@ class FAQHandler:
 
     def get_answer(self, user_input: str) -> str | None:
         user_input = user_input.strip().lower()
-
-        # Handle common greetings
-        greetings = {'hello', 'hi', 'hey', 'hola'}
-        if user_input in greetings:
-            return 'Hello! How can I assist you today?'
-
-        # Split input if "and" is present
         questions = [q.strip() for q in user_input.split('and') if q.strip()]
         logger.debug(f'🛠 Split questions: {questions}')
 
-        answers = []
+        all_faqs = {**self.local_faq, **self.faq_data}  # Ensure merged dictionary
+        logger.debug(f'📖 Available FAQ keys: {list(all_faqs.keys())}')  # Debugging
 
+        answers = []
         for question in questions:
             logger.debug(f"🔎 Processing question: '{question}'")
 
-            # Try to find the best match
             best_match, score = process.extractOne(
-                question,
-                self.faq_data.keys(),
-                score_cutoff=85,
+                question, all_faqs.keys(), score_cutoff=65,
             ) or (None, 0)
 
-            if best_match and score >= 85:  # Ensure match is valid
+            if best_match:
                 logger.debug(f"✅ Best match: '{best_match}' (Score: {score})")
-                answer = self.faq_data[best_match]
-
-                if 'automation' in answer.lower():
-                    answer += (
-                        ' Would you like to know more about how '
-                        'automation can help your business?'
-                    )
-
+                answer = all_faqs[best_match]
                 answers.append(answer)
             else:
                 logger.debug(
-                    f'❌ No suitable match found for:'
-                    f" '{question}' (Score: {score})",
+                    f"❌ No suitable match found for: '{question}' (Score: {score})",
                 )
                 answers.append(
-                    "I'm not sure about that."
-                    ' Would you like me to help you find more information?',
+                    "I'm not sure about that. Would you like me to "
+                    'help you find more information?',
                 )
 
-        return (
-            '\n'.join(answers)
-            if answers
-            else "Sorry, I couldn't find an answer."
-                 ' Would you like to ask something else?'
+        return '\n'.join(
+            answers,
+        ) if answers else (
+            "Sorry, I couldn't find an answer. Would you like "
+            'to ask something else?'
         )
