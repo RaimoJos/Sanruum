@@ -1,21 +1,4 @@
 # sanruum\ai_core\persistent_memory.py
-"""
-persistent_memory.py - Handles persistent memory storage for individual users.
-
-This module extends the AIMemory class to provide functionality for persisting
-conversation history and user intents to disk. It allows for loading and saving
-memory for each user.
-
-Class:
-- PersistentAIMemory: Inherits from AIMemory and allows for persistent
-    storage and retrieval.
-
-Key Methods:
-- load_user_memory() -> None: Loads user-specific memory from the file system.
-- store_message(sender: str, message: str) -> None: Stores a message in
-    memory and persists it.
-- persist_memory() -> None: Persists the current memory to disk.
-"""
 from __future__ import annotations
 
 import os
@@ -49,18 +32,15 @@ class PersistentAIMemory(AIMemory):
 
     def store_message(self, role: str, message: str) -> None:
         """Store a message while keeping the latest ones."""
-        vector = self.embedder.encode(message)
+        vector = self.embedder.encode(message).tolist() if self.embedder else []
 
-        if 'history' not in self.memory:
-            self.memory['history'] = []
-
-        self.memory['history'].append(
+        self.memory.setdefault('history', []).append(
             {'role': role, 'message': message, 'vector': vector},
         )
 
         # Keep only the latest messages
         self.memory['history'] = self.memory['history'][-self.memory_limit:]
-        self.save_memory()
+        self.persist_memory()
 
     def persist_memory(self) -> None:
         """Persist the AI's memory and last detected intent to a file."""
