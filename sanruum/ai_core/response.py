@@ -26,16 +26,12 @@ class AIResponse:
         self.response_cache = {}
 
     def get_response(self, user_input: str | list) -> str:
-        """
-        Generates a response based on user input, optimized for efficiency.
-        """
         try:
             start_time = time.perf_counter()
 
             # Ensure input is a string
             if isinstance(user_input, list):
                 user_input = ' '.join(map(str, user_input))
-
             if not isinstance(user_input, str):
                 raise ValueError(
                     f'Invalid input type: {type(user_input)}. Expected string or list.',
@@ -59,21 +55,34 @@ class AIResponse:
             # Check FAQ
             faq_answer = self.faq.get_answer(user_input)
             default_faq_no_answer = "I'm sorry, I couldn't find an answer."
-
-            if faq_answer and faq_answer != default_faq_no_answer:
+            logger.debug(f"FAQ answer returned for '{user_input}': {faq_answer}")
+            if (
+                    faq_answer and faq_answer.strip()
+                    and faq_answer != default_faq_no_answer
+            ):
                 logger.debug(f'🔍 FAQ response found: {faq_answer}')
+                self.memory.store_knowledge(user_input, faq_answer)
                 self.response_cache[user_input] = faq_answer
                 return faq_answer
 
-            # AI Processing
+            # If FAQ returns a falsey value, return a fallback message
+            if not faq_answer or not faq_answer.strip():
+                logger.debug(
+                    '❌ No FAQ match found, skipping memory storage for this query.',
+                )
+                return (
+                    "I'm not sure about that. Would you like me "
+                    'to help you find more information?'
+                )
+
+            # If FAQ wasn't helpful, process via AI Processor
             ai_response = self.processor.process_input(user_input)
 
             # Store response if valid and not redundant
             if (
-                    ai_response
-                    and ai_response not in RESPONSES[PERSONALITY_MODE]['fallback']
+                    ai_response and ai_response
+                    not in RESPONSES[PERSONALITY_MODE]['fallback']
             ):
-                # Avoid storing duplicates
                 if not self.memory.find_relevant_knowledge(ai_response):
                     self.memory.store_knowledge(user_input, ai_response)
                     self.response_cache[user_input] = ai_response
@@ -81,7 +90,6 @@ class AIResponse:
             logger.debug(
                 f'⏱️ Response time: {(time.perf_counter() - start_time) * 1000:.2f}ms',
             )
-
             final_response = ai_response or "Sorry, I couldn't process your request."
             logger.debug(f'🤖 Final AI response: {final_response}')
             return final_response
