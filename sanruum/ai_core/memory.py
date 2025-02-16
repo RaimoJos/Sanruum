@@ -72,7 +72,7 @@ class AIMemory:
             return None
 
         query_vector = self.embedder.encode(query).reshape(1, -1)  # Reshape for sklearn
-        logger.debug(f'Query Vector: {query_vector}')
+        # logger.debug(f'Query Vector: {query_vector}')
 
         best_match = None
         best_score = -1
@@ -82,6 +82,7 @@ class AIMemory:
             logger.debug('No stored knowledge!')
             return None
 
+        # Consider caching embeddings for stored knowledge to avoid recomputation.
         for topic, info in knowledge.items():
             for item in info:
                 item_vector = self.embedder.encode(item).reshape(1, -1)
@@ -94,8 +95,9 @@ class AIMemory:
                     best_match = item
                     best_score = similarity
 
-        if best_match is None:
-            logger.debug('No match found!')
+        if best_match is None or best_score < 0.4:
+            logger.debug(f'No relevant match found (best_score: {best_score:.4f}).')
+        logger.debug(f'✅ Best match found: {best_match} (Score: {best_score:.4f})')
 
         return best_match
 
