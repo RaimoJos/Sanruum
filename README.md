@@ -23,10 +23,9 @@ sanruum/
 ├── README.md
 ├── data/
 │   ├── custom_substitutions.csv
-│   ├── faq.json
 │   ├── ignore_spellcheck_words.txt
 │   ├── intents.json
-│   ├── responses.json
+│   ├── label_map.json
 │   ├── test_text.txt
 │   └── user_memory/
 ├── dist/
@@ -52,7 +51,7 @@ sanruum/
 │   │       └── text_to_speech.py
 │   ├── ai_system.py
 │   ├── constants.py
-│   ├── faq_handler.py
+│   ├── intent_handler.py
 │   ├── main.py
 │   ├── monitor/
 │   │   ├── __init__.py
