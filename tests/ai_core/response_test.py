@@ -10,7 +10,7 @@ from pytest_mock import MockerFixture
 from sanruum.ai_core.memory import AIMemory
 from sanruum.ai_core.processor import AIProcessor
 from sanruum.ai_core.response import AIResponse
-from sanruum.faq_handler import FAQHandler
+from sanruum.intent_handler import IntentHandler
 from sanruum.utils.logger import logger
 
 # Disable logger to prevent noise in test output
@@ -24,13 +24,13 @@ def ai_response() -> AIResponse:
 
     # Use MagicMock with spec to have proper method signatures
     ai.memory = MagicMock(spec=AIMemory)
-    ai.faq = MagicMock(spec=FAQHandler)
+    ai.intent_handler = MagicMock(spec=IntentHandler)
     ai.processor = MagicMock(spec=AIProcessor)
 
     # Explicitly assign mocks to methods and cast them as MagicMock
     ai.memory.find_relevant_knowledge = cast(MagicMock, MagicMock(return_value=None))
     ai.memory.store_knowledge = cast(MagicMock, MagicMock())
-    ai.faq.get_answer = cast(MagicMock, MagicMock(return_value=None))
+    ai.intent_handler = cast(MagicMock, MagicMock(return_value=None))
     ai.processor.process_input = cast(
         MagicMock, MagicMock(return_value='Processed response'),
     )
@@ -50,7 +50,7 @@ def test_cache_hit(mocker: MockerFixture, ai_response: AIResponse) -> None:
 
     # Use cast to tell mypy these are MagicMock objects
     cast(MagicMock, ai_response.memory.find_relevant_knowledge).assert_not_called()
-    cast(MagicMock, ai_response.faq.get_answer).assert_not_called()
+    cast(MagicMock, ai_response.intent_handler.get_intent_response).assert_not_called()
 
 
 # Test when the response is found in memory
@@ -66,12 +66,15 @@ def test_memory_hit(ai_response: AIResponse) -> None:
     cast(MagicMock, ai_response.memory.find_relevant_knowledge).assert_called_once_with(
         'memory_question',
     )
-    cast(MagicMock, ai_response.faq.get_answer).assert_not_called()
+    cast(MagicMock, ai_response.intent_handler.get_intent_response).assert_not_called()
 
 
 # Test when the response is found in FAQ
 def test_faq_hit(ai_response: AIResponse) -> None:
-    cast(MagicMock, ai_response.faq.get_answer).return_value = 'FAQ response'
+    cast(
+        MagicMock,
+        ai_response.intent_handler.get_intent_response,
+    ).return_value = 'FAQ response'
     cast(MagicMock, ai_response.memory.find_relevant_knowledge).return_value = None
 
     result = ai_response.get_response('faq_question')
@@ -91,7 +94,7 @@ def test_ai_processor_response(ai_response: AIResponse) -> None:
         ai_response.processor.process_input,
     ).return_value = 'AI processed response'
     cast(MagicMock, ai_response.memory.find_relevant_knowledge).return_value = None
-    cast(MagicMock, ai_response.faq.get_answer).return_value = None
+    cast(MagicMock, ai_response.intent_handler.get_intent_response).return_value = None
 
     result = ai_response.get_response('processor_question')
 
