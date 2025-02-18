@@ -26,7 +26,9 @@ repos:
     rev: v3.19.1
     hooks:
       - id: pyupgrade
-        args: [ --py39-plus ]
+        args:
+          - --py310-plus
+          - --keep-typing-imports
   - repo: https://github.com/hhatto/autopep8
     rev: v2.3.2
     hooks:
