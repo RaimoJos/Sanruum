@@ -1,10 +1,11 @@
-# sanruum\ai_core\memory.py
+# sanruum/ai_core/memory.py
 from __future__ import annotations
 
 import json
 import os.path
 from typing import Any
 
+import numpy as np
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -37,11 +38,9 @@ class AIMemory:
             vector = self.embedder.encode(message).tolist()
         else:
             vector = []
-
         self.memory.setdefault('history', []).append(
             {'role': role, 'message': message, 'vector': vector},
         )
-
         self.memory['history'] = self.memory['history'][-self.memory_limit:]
         self.save_memory()
 
@@ -71,8 +70,7 @@ class AIMemory:
             logger.error('No embedder available for computing query vector.')
             return None
 
-        query_vector = self.embedder.encode(query).reshape(1, -1)  # Reshape for sklearn
-        # logger.debug(f'Query Vector: {query_vector}')
+        query_vector = self.embedder.encode(query).reshape(1, -1)
 
         best_match = None
         best_score = -1
@@ -82,51 +80,75 @@ class AIMemory:
             logger.debug('No stored knowledge!')
             return None
 
-        # Consider caching embeddings for stored knowledge to avoid recomputation.
-        for topic, info in knowledge.items():
-            for item in info:
-                item_vector = self.embedder.encode(item).reshape(1, -1)
-                similarity = cosine_similarity(query_vector, item_vector)[0][0]
+        for topic, items in knowledge.items():
+            for item in items:
+                # Use cached embedding if available
+                if isinstance(item, dict) and 'vector' in item:
+                    candidate_text = item['data']
+                    candidate_vector = np.array(item['vector']).reshape(1, -1)
+                else:
+                    candidate_text = item
+                    candidate_vector = self.embedder.encode(
+                        candidate_text,
+                    ).reshape(1, -1)
+
+                similarity = cosine_similarity(query_vector, candidate_vector)[0][0]
                 logger.debug(
-                    f"Comparing '{query}' to '{item}' → similarity: {similarity}",
+                    f"Comparing '{query}' to"
+                    f" '{candidate_text}' → similarity: {similarity}",
                 )
 
                 if similarity > best_score:
-                    best_match = item
+                    best_match = candidate_text
                     best_score = similarity
 
-        if best_match is None or best_score < 0.4:
+        if best_match is None or best_score < 0.3:
             logger.debug(f'No relevant match found (best_score: {best_score:.4f}).')
-        logger.debug(f'✅ Best match found: {best_match} (Score: {best_score:.4f})')
+            return None
 
+        logger.debug(f'✅ Best match found: {best_match} (Score: {best_score:.4f})')
         return best_match
 
     def get_last_message(self) -> str | None:
         """Return the last message in history."""
         if self.memory['history']:
             last_message = self.memory['history'][-1].get('message')
-            if isinstance(last_message, str):  # Ensure it's a string
+            if isinstance(last_message, str):
                 return last_message
         return None
 
     def store_knowledge(self, topic: str, data: str) -> None:
-        """Store new information under a topic."""
-        self.memory.setdefault(topic.lower(), []).append(data)
+        """Store new information under a topic, caching its embedding."""
+        if self.embedder:
+            vector = self.embedder.encode(data).tolist()
+        else:
+            vector = []
+        knowledge_item = {'data': data, 'vector': vector}
+        self.memory.setdefault(topic.lower(), []).append(knowledge_item)
         self.save_memory()
 
     def retrieve_knowledge(self, topic: str) -> list[str] | None:
         """Retrieve stored knowledge about a topic."""
         data = self.memory.get(topic.lower(), None)
         if isinstance(data, list):
-            return data
+            return [
+                item['data']
+                if isinstance(item, dict) and 'data' in item
+                else item for item in data
+            ]
         return None
 
     def get_all_knowledge(self) -> dict[str, list[str]]:
         """Retrieve all stored knowledge except conversation history."""
-        return {
-            k: v for k, v in self.memory.items()
-            if k != 'history' and isinstance(v, list)
-        }
+        result = {}
+        for k, v in self.memory.items():
+            if k != 'history' and isinstance(v, list):
+                result[k] = [
+                    item['data'] if isinstance(
+                        item, dict,
+                    ) and 'data' in item else item for item in v
+                ]
+        return result
 
     def get_last_intent(self) -> str | None:
         """Returns the last recognized intent."""
