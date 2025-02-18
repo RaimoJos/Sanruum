@@ -24,6 +24,3 @@ except FileNotFoundError as e:
 except Exception as e:
     logger.error(f'❌ Unexpected Error: {e}')
     RESPONSES = DEFAULT_INTENTS
-
-print(INTENTS)
-print(INTENTS_FILE)
