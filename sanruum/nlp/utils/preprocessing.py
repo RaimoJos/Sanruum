@@ -387,9 +387,11 @@ def preprocess_text(
     # Expand contractions and normalize text
     input_text = expand_contraction(input_text)
     input_text = normalize_unicode(input_text)
+    input_text = to_lower(input_text)
     input_text = remove_url(input_text)
     input_text = remove_email(input_text)
     input_text = remove_punctuation(input_text)
+    input_text = remove_whitespace(input_text)
 
     # Tokenize and remove stopwords
     tokens: list[str] = word_tokenize(input_text)
