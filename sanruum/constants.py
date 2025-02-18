@@ -20,9 +20,8 @@ TEST_DIR = os.path.join(BASE_DIR, 'tests')
 ensure_dir(TEST_DIR)
 DATA_DIR = os.path.join(BASE_DIR, 'data')  # DATA_DIR
 ensure_dir(DATA_DIR)
-FAQ_FILE = os.path.join(DATA_DIR, 'faq.json')  # FAQ_FILE
+INTENTS_FILE = os.path.join(DATA_DIR, 'intents.json')
 OUTPUT_MP3_FILE = os.path.join(DATA_DIR, 'output.mp3')  # OUTPUT_MP3
-RESPONSES_FILE = os.path.join(DATA_DIR, 'responses.json')  # RESPONSES_FILE
 SESSION_HISTORY_FILE = os.path.join(
     DATA_DIR,
     'session_history.json',
