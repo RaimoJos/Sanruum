@@ -5,15 +5,28 @@
       "patterns": [
         "hello",
         "hi",
-        "hey"
+        "hey",
+        "good morning",
+        "good evening"
       ],
       "response": "Hello! How can I assist you today?"
+    },
+    {
+      "name": "farewell",
+      "patterns": [
+        "bye",
+        "goodbye",
+        "see you later",
+        "take care"
+      ],
+      "response": "Goodbye! Have a great day!"
     },
     {
       "name": "help",
       "patterns": [
         "how can you help",
-        "what can you do"
+        "what can you do",
+        "tell me what you can do"
       ],
       "response": "I can assist with AI automation, voice AI, and business solutions."
     },
@@ -21,9 +34,111 @@
       "name": "python_info",
       "patterns": [
         "what is python",
-        "explain python"
+        "explain python",
+        "tell me about python"
       ],
       "response": "Python is a powerful programming language used for AI, automation, and web development."
+    },
+    {
+      "name": "appointment",
+      "patterns": [
+        "how do I book an appointment",
+        "schedule a meeting",
+        "make an appointment"
+      ],
+      "response": "To book an appointment, please visit our website."
+    },
+    {
+      "name": "joke",
+      "patterns": [
+        "tell me a joke",
+        "make me laugh",
+        "say something funny"
+      ],
+      "response": "Why don’t scientists trust atoms? Because they make up everything!"
+    },
+    {
+      "name": "creator",
+      "patterns": [
+        "who created you",
+        "who made you",
+        "who is your developer"
+      ],
+      "response": "I was developed by Raimo Jostov!"
+    },
+    {
+      "name": "automation",
+      "patterns": [
+        "how does automation work",
+        "explain automation",
+        "tell me about automation"
+      ],
+      "response": "Automation allows systems to perform tasks with minimal human intervention, improving efficiency and productivity."
+    },
+    {
+      "name": "small_talk",
+      "patterns": [
+        "how are you",
+        "how's it going",
+        "what's up",
+        "how's your day"
+      ],
+      "response": "I'm just a program, but I'm doing great! How about you?"
+    },
+    {
+      "name": "weather",
+      "patterns": [
+        "what's the weather like",
+        "tell me the weather",
+        "is it raining",
+        "weather forecast"
+      ],
+      "response": "I currently don't have access to live weather data, but you can check your local forecast online."
+    },
+    {
+      "name": "time",
+      "patterns": [
+        "what time is it",
+        "tell me the time",
+        "current time"
+      ],
+      "response": "The current time is {time}."
+    },
+    {
+      "name": "news",
+      "patterns": [
+        "what's the news",
+        "tell me the latest news",
+        "give me a news update"
+      ],
+      "response": "I currently don’t have access to live news updates, but you can check your favorite news website for the latest information."
+    },
+    {
+      "name": "math",
+      "patterns": [
+        "what is 2 plus 2",
+        "solve 5 times 3",
+        "what's 12 divided by 4"
+      ],
+      "response": "The answer is {result}. Let me know if you'd like help with more math problems!"
+    },
+    {
+      "name": "motivation",
+      "patterns": [
+        "give me a motivational quote",
+        "inspire me",
+        "I need motivation"
+      ],
+      "response": "Here’s a quote: 'The only way to do great work is to love what you do.' – Steve Jobs"
+    },
+    {
+      "name": "personalization",
+      "patterns": [
+        "remember me",
+        "save my preferences",
+        "can you remember my name"
+      ],
+      "response": "I currently don’t have memory capabilities, but I can assist with your preferences during this session."
     }
   ]
 }
