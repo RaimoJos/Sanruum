@@ -30,7 +30,7 @@ def ai_response() -> AIResponse:
     # Explicitly assign mocks to methods and cast them as MagicMock
     ai.memory.find_relevant_knowledge = cast(MagicMock, MagicMock(return_value=None))
     ai.memory.store_knowledge = cast(MagicMock, MagicMock())
-    ai.intent_handler = cast(MagicMock, MagicMock(return_value=None))
+    ai.intent_handler.get_intent_response = MagicMock(return_value=None)
     ai.processor.process_input = cast(
         MagicMock, MagicMock(return_value='Processed response'),
     )
@@ -131,3 +131,15 @@ def test_error_handling(mock_logger: MagicMock, ai_response: AIResponse) -> None
         "I'm experiencing some issues at the moment."
         ' Please try again later!'
     )
+
+
+def test_personality_selection(ai_response: AIResponse) -> None:
+    # Simulate an intent response with multiple personalities
+    cast(MagicMock, ai_response.intent_handler.get_intent_response).return_value = {
+        'friendly': 'Friendly intent response',
+        'formal': 'Formal intent response',
+    }
+    cast(MagicMock, ai_response.memory.find_relevant_knowledge).return_value = None
+
+    result = ai_response.get_response('personality_question')
+    assert result == 'Friendly intent response'
