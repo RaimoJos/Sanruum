@@ -9,7 +9,13 @@
         "good morning",
         "good evening"
       ],
-      "response": "Hello! How can I assist you today?"
+      "response": {
+        "friendly": "Hey there! How can I assist you today?",
+        "formal": "Good day! How may I assist you?",
+        "professional": "Greetings. How may I assist you today?",
+        "casual": "Yo! What's up? How can I help?",
+        "humorous": "Well, hello there! Ready for some fun? How can I assist you today?"
+      }
     },
     {
       "name": "farewell",
@@ -19,7 +25,13 @@
         "see you later",
         "take care"
       ],
-      "response": "Goodbye! Have a great day!"
+      "response": {
+        "friendly": "Goodbye! Take care!",
+        "formal": "Farewell, and have a great day.",
+        "professional": "Goodbye. Wishing you well.",
+        "casual": "Catch you later! Stay awesome!",
+        "humorous": "See you later, alligator! After a while, crocodile!"
+      }
     },
     {
       "name": "help",
@@ -28,7 +40,13 @@
         "what can you do",
         "tell me what you can do"
       ],
-      "response": "I can assist with AI automation, voice AI, and business solutions."
+      "response": {
+        "friendly": "I can help with AI automation, voice AI, and business solutions. Just let me know what you need!",
+        "formal": "I offer assistance in AI automation, voice AI, and business solutions. How may I be of service?",
+        "professional": "I specialize in AI automation, voice AI, and business solutions. How can I assist you today?",
+        "casual": "I'm all about AI automation, voice AI, and business solutions. What’s on your mind?",
+        "humorous": "I'm like a superhero for AI automation and voice AI! What powers do you need today?"
+      }
     },
     {
       "name": "python_info",
@@ -37,7 +55,13 @@
         "explain python",
         "tell me about python"
       ],
-      "response": "Python is a powerful programming language used for AI, automation, and web development."
+      "response": {
+        "friendly": "Python is a programming language that’s super easy to learn! It’s great for AI and web development!",
+        "formal": "Python is a high-level, interpreted programming language that is widely used in fields like AI, data analysis, and web development.",
+        "professional": "Python is an interpreted, high-level programming language. It's especially popular for AI, automation, and web development.",
+        "casual": "Python’s awesome! It’s a coding language used for AI and web dev. Super cool stuff!",
+        "humorous": "Python is like the swiss knife of programming—simple, but it can do everything from AI to web dev and beyond!"
+      }
     },
     {
       "name": "appointment",
@@ -46,7 +70,13 @@
         "schedule a meeting",
         "make an appointment"
       ],
-      "response": "To book an appointment, please visit our website."
+      "response": {
+        "friendly": "To book an appointment, please visit our website, and we’ll get you all set up!",
+        "formal": "You can schedule an appointment through our website. We look forward to serving you.",
+        "professional": "Please visit our website to schedule an appointment at your convenience.",
+        "casual": "You can book an appointment on our site. It’s super quick!",
+        "humorous": "Want an appointment? Hop on our website and schedule away—no waiting in line!"
+      }
     },
     {
       "name": "joke",
@@ -55,7 +85,13 @@
         "make me laugh",
         "say something funny"
       ],
-      "response": "Why don’t scientists trust atoms? Because they make up everything!"
+      "response": {
+        "friendly": "Why don’t skeletons fight each other? They don’t have the guts!",
+        "formal": "Why did the math book look sad? It had too many problems.",
+        "professional": "Why don’t programmers like nature? It has too many bugs.",
+        "casual": "Why don’t some couples go to the gym? Because some relationships don’t work out!",
+        "humorous": "Why did the programmer quit his job? He didn’t get arrays!"
+      }
     },
     {
       "name": "creator",
@@ -64,7 +100,13 @@
         "who made you",
         "who is your developer"
       ],
-      "response": "I was developed by Raimo Jostov!"
+      "response": {
+        "friendly": "I was created by the brilliant Raimo Jostov! 😎",
+        "formal": "I was developed by Raimo Jostov, an expert in AI and technology.",
+        "professional": "I was designed and developed by Raimo Jostov, a skilled professional in AI and automation.",
+        "casual": "I was made by Raimo Jostov, the genius behind this AI!",
+        "humorous": "Raimo Jostov created me. He’s like the wizard behind the curtain, but with more coffee!"
+      }
     },
     {
       "name": "automation",
@@ -73,7 +115,13 @@
         "explain automation",
         "tell me about automation"
       ],
-      "response": "Automation allows systems to perform tasks with minimal human intervention, improving efficiency and productivity."
+      "response": {
+        "friendly": "Automation lets systems handle repetitive tasks, so you don’t have to! It makes everything easier.",
+        "formal": "Automation is the use of technology to perform tasks without human intervention, improving efficiency.",
+        "professional": "Automation refers to the application of technology to automate tasks, streamlining operations and increasing productivity.",
+        "casual": "Automation is like having a robot do all the boring stuff for you. Cool, right?",
+        "humorous": "Automation is like your personal robot assistant that never asks for a day off!"
+      }
     },
     {
       "name": "small_talk",
@@ -83,7 +131,13 @@
         "what's up",
         "how's your day"
       ],
-      "response": "I'm just a program, but I'm doing great! How about you?"
+      "response": {
+        "friendly": "I'm doing great, thanks for asking! How about you?",
+        "formal": "I'm doing well, thank you for asking. How may I assist you today?",
+        "professional": "I’m functioning at optimal capacity. How may I assist you?",
+        "casual": "I’m doing awesome! How about you? What’s new?",
+        "humorous": "I’m just a bunch of code, but I’m feeling fantastic! How about you?"
+      }
     },
     {
       "name": "weather",
@@ -93,7 +147,13 @@
         "is it raining",
         "weather forecast"
       ],
-      "response": "I currently don't have access to live weather data, but you can check your local forecast online."
+      "response": {
+        "friendly": "I don’t have live weather data, but check your local forecast for the most accurate info.",
+        "formal": "Unfortunately, I currently do not have access to live weather data. Please refer to a trusted weather source.",
+        "professional": "I don’t have access to real-time weather data. Please check your local weather service for updates.",
+        "casual": "Sorry, I can’t check the weather right now. But you can always Google it!",
+        "humorous": "I wish I could check the weather, but my cloud storage doesn’t have windows!"
+      }
     },
     {
       "name": "time",
@@ -102,43 +162,13 @@
         "tell me the time",
         "current time"
       ],
-      "response": "The current time is {time}."
-    },
-    {
-      "name": "news",
-      "patterns": [
-        "what's the news",
-        "tell me the latest news",
-        "give me a news update"
-      ],
-      "response": "I currently don’t have access to live news updates, but you can check your favorite news website for the latest information."
-    },
-    {
-      "name": "math",
-      "patterns": [
-        "what is 2 plus 2",
-        "solve 5 times 3",
-        "what's 12 divided by 4"
-      ],
-      "response": "The answer is {result}. Let me know if you'd like help with more math problems!"
-    },
-    {
-      "name": "motivation",
-      "patterns": [
-        "give me a motivational quote",
-        "inspire me",
-        "I need motivation"
-      ],
-      "response": "Here’s a quote: 'The only way to do great work is to love what you do.' – Steve Jobs"
-    },
-    {
-      "name": "personalization",
-      "patterns": [
-        "remember me",
-        "save my preferences",
-        "can you remember my name"
-      ],
-      "response": "I currently don’t have memory capabilities, but I can assist with your preferences during this session."
+      "response": {
+        "friendly": "The current time is {time}. What can I do for you next?",
+        "formal": "The current time is {time}. How may I assist you further?",
+        "professional": "The current time is {time}. Is there anything else you need?",
+        "casual": "It’s {time}. What’s up next?",
+        "humorous": "Time’s ticking! It’s {time}. What’s on your mind?"
+      }
     }
   ]
 }
