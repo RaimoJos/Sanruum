@@ -1,4 +1,3 @@
-# sanruum/ai_core/response.py
 from __future__ import annotations
 
 import time
@@ -10,15 +9,18 @@ from sanruum.ai_core.memory import AIMemory
 from sanruum.ai_core.processor import AIProcessor
 from sanruum.intent_handler import IntentHandler
 from sanruum.utils.logger import logger
+from sanruum.utils.personality import apply_personality
 
 
 class AIResponse:
+    personality: str
     memory: AIMemory
     processor: AIProcessor
     intent_handler: IntentHandler
     response_cache: dict[str, str]
 
-    def __init__(self) -> None:
+    def __init__(self, personality: str = PERSONALITY_MODE) -> None:
+        self.personality = personality
         self.memory = AIMemory()
         self.processor = AIProcessor(self.memory)
         self.intent_handler = IntentHandler()
@@ -52,13 +54,28 @@ class AIResponse:
             intent_response = self.intent_handler.get_intent_response(user_input)
             if intent_response:
                 logger.debug(f'🔍 Intent response found: {intent_response}')
+                if isinstance(intent_response, dict):
+                    selected = intent_response.get(PERSONALITY_MODE)
+                    if not selected:
+                        selected = next(iter(intent_response.values()))
+                    logger.debug(f'Selected personality response: {selected}')
+                    intent_response = selected
+
                 self.memory.store_knowledge(user_input, intent_response)
                 self.response_cache[user_input] = intent_response
                 return intent_response
 
             ai_response = self.processor.process_input(user_input)
+            # If the processor returns a dict, select the personality-specific string.
+            if isinstance(ai_response, dict):
+                selected = ai_response.get(PERSONALITY_MODE)
+                if not selected:
+                    selected = next(iter(ai_response.values()))
+                logger.debug(f'Selected processor response: {selected}')
+                ai_response = selected
 
-            if ai_response and ai_response not in INTENTS[PERSONALITY_MODE]['fallback']:
+            fallbacks = INTENTS.get(PERSONALITY_MODE, {}).get('fallback', [])
+            if ai_response and ai_response not in fallbacks:
                 if not self.memory.find_relevant_knowledge(ai_response):
                     self.memory.store_knowledge(user_input, ai_response)
                     self.response_cache[user_input] = ai_response
@@ -67,7 +84,10 @@ class AIResponse:
                 f'⏱️ Response time: {(time.perf_counter() - start_time) * 1000:.2f}ms',
             )
             final_response = ai_response or "Sorry, I couldn't process your request."
-            logger.debug(f'🤖 Final AI response: {final_response}')
+            final_response = apply_personality(final_response, self.personality)
+            logger.debug(
+                f'🤖 Final AI response (after personality applied): {final_response}',
+            )
             return final_response
         except Exception as e:
             logger.error(f'❌ Error processing response: {e}\n{traceback.format_exc()}')
