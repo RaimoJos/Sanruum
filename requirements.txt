@@ -27,7 +27,6 @@ requests~=2.32.3
 scikit-learn~=1.6.1
 sentence-transformers~=3.4.1
 spacy~=3.8.4
-spellchecker~=0.4
 torch~=2.6.0
 transformers~=4.48.2
 vadersentiment~=3.3.2
