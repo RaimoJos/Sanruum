@@ -38,7 +38,7 @@ class IntentHandler:
             logger.error(f'❌ Unexpected error loading Intents JSON: {e}')
             self.intents_data = []
 
-    def get_intent_response(self, user_input: str) -> str:
+    def get_intent_response(self, user_input: str) -> dict[str, str] | str:
         user_input = user_input.strip().lower()
         user_input = remove_initial_greeting(user_input)
         questions = [q.strip() for q in re.split(r'[,.?!]', user_input) if q.strip()]
@@ -51,17 +51,21 @@ class IntentHandler:
                     question, intent.get('patterns', []),
                     scorer=fuzz.token_set_ratio, score_cutoff=60,
                 ) or (None, 0)
+
                 if best_match:
                     logger.debug(
                         f'✅ Best match found in intent: '
                         f"'{intent['name']}' (Score: {score})",
                     )
-                    return str(
-                        intent.get(
-                            'response',
-                            self.default_responses['fallback'],
-                        ),
-                    )
+
+                    response = intent.get('response')
+                    if isinstance(response, dict):  # Ensure correct return type
+                        return response
+                    elif isinstance(response, str):  # Ensure it's a string
+                        return response
+
+                    # If response is not found or invalid, return fallback
+                    return self.default_responses['fallback']
 
         logger.debug('❌ No matching intent found.')
-        return str(self.default_responses['fallback'])  # Ensure it's a string.
+        return self.default_responses['fallback']
