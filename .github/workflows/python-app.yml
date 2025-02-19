@@ -49,6 +49,7 @@ jobs:
         run: |
           poetry run python -c "import nltk; nltk.download('stopwords')"
           poetry run python -c "import nltk; nltk.download('punkt_tab')"
+          poetry run python -c "import nltk; nltk.download('wordnet')"
 
       - name: Debug pytest rootdir
         run: |
