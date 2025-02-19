@@ -8,6 +8,7 @@ from typing import Callable
 from unicodedata import normalize
 
 import contractions
+import nltk
 from names_dataset import NameDataset
 from nltk import LancasterStemmer
 from nltk import PunktSentenceTokenizer
@@ -20,6 +21,8 @@ from spellchecker.spellchecker import SpellChecker
 
 from sanruum.constants import IGNORE_SPELLCHECK_WORD_FILE_PATH
 from sanruum.utils.logger import logger
+
+nltk.download('stopwords')
 
 # Global precompiled regex patterns for performance
 URL_REGEX = re.compile(r'(www|http)\S+')
