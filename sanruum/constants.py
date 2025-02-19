@@ -6,9 +6,6 @@ import os
 BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
 
-# print(f"DEBUG: BASE_DIR = {BASE_DIR}")  # Debugging output
-
-
 # Data directory
 def ensure_dir(path: str) -> None:
     """Ensure that the given directory exists."""
