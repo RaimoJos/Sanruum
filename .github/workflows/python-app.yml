@@ -46,7 +46,9 @@ jobs:
         run: choco install ffmpeg -y
 
       - name: Download NLTK stopwords  # ✅ Fixed step name
-        run: poetry run python -c "import nltk; nltk.download('stopwords')"
+        run: |
+          poetry run python -c "import nltk; nltk.download('stopwords')"
+          poetry run python -c "import nltk; nltk.download('punkt_tab')"
 
       - name: Debug pytest rootdir
         run: |
