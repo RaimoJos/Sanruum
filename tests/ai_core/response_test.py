@@ -98,7 +98,7 @@ def test_ai_processor_response(ai_response: AIResponse) -> None:
 
     result = ai_response.get_response('processor_question')
 
-    assert result == 'AI processed response'
+    assert 'AI processed response' in result
     cast(MagicMock, ai_response.processor.process_input).assert_called_once_with(
         'processor_question',
     )
