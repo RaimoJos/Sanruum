@@ -16,7 +16,7 @@ from nltk import WordNetLemmatizer
 from nltk.corpus import stopwords
 from nltk.stem.snowball import PorterStemmer
 from nltk.tokenize import word_tokenize
-from spellchecker import SpellChecker
+from spellchecker.spellchecker import SpellChecker
 
 from sanruum.constants import IGNORE_SPELLCHECK_WORD_FILE_PATH
 from sanruum.utils.logger import logger
