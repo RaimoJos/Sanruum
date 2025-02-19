@@ -37,8 +37,8 @@ class SanruumAI:
         # self.monitor.monitor()
         self.memory: dict[str, str] = {}
         self.tasks: list[str] = []
-        self.personality = 'default'
-        self.ai = AIResponse()
+        self.personality = 'friendly'
+        self.ai = AIResponse(personality=self.personality)
         self.input_mode: str | None = None
         self.session_stats: SessionStats = {
             'total_queries': 0,
@@ -102,6 +102,7 @@ class SanruumAI:
 
     def set_mode(self, mode: str) -> str:
         self.personality = mode
+        self.ai.personality = mode
         return f'AI mode set to: {mode}'
 
     def update_stats(
