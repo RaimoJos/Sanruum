@@ -114,12 +114,12 @@ def generate_tree(
 
 def update_readme(tree_structure: str) -> None:
     """Updates the README.md file with the generated tree structure."""
-    readme_path = os.path.join(BASE_DIR, 'README.md')
+    stats_path = os.path.join(BASE_DIR, 'STATS.md')
     start_marker, end_marker = '<!-- START_TREE -->', '<!-- END_TREE -->'
     tree_section = f'{start_marker}\n```\n{tree_structure}\n```\n{end_marker}'
 
     try:
-        with open(readme_path, encoding='utf-8') as f:
+        with open(stats_path, encoding='utf-8') as f:
             content = f.read()
     except FileNotFoundError:
         content = ''
@@ -132,7 +132,7 @@ def update_readme(tree_structure: str) -> None:
 
     # Handle file write errors
     try:
-        with open(readme_path, 'w', encoding='utf-8') as f:
+        with open(stats_path, 'w', encoding='utf-8') as f:
             f.write(content)
         print('README.md updated with the directory tree.')
     except OSError as e:
