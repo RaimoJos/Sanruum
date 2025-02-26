@@ -2,6 +2,11 @@
 from __future__ import annotations
 
 
+def sync_with_fitness_tracker(user_id: str) -> None:
+    """Placeholder for syncing with fitness tracker."""
+    pass
+
+
 def track_fitness_data(user_id: str) -> None:
     """Fetches fitness data like steps, calories burned, etc."""
     pass
