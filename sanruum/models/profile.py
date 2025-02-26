@@ -20,14 +20,16 @@ class UserProfile(Base):
     age = Column(Integer)
     weight = Column(Float)  # in kg
     height = Column(Float)  # in cm
-    # e.g., "Type 1", "Type 2", or None for healthy individuals
-    diabetes_type = Column(String)
+    diabetes_type = Column(String)  # e.g., "Type 1", "Type 2", or None
     goal = Column(String)  # e.g., "weight loss", "healthy lifestyle", etc
 
     # Personalized settings for for diabetes management(if applicable)
     insulin_to_carb_ratio = Column(Float, default=10.0)
     correction_factor = Column(Float, default=2.0)
     target_bg = Column(Float, default=5.5)
+
+    # User's preferred timezone (default set to Europe/Tallinn)
+    timezone = Column(String, default='Europe/Tallinn')
 
     # Carbs
     meal_carb_range_low = Column(Integer, default=45)
