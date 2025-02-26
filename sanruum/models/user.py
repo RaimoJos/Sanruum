@@ -14,7 +14,7 @@ from sqlalchemy.orm import relationship
 
 Base: Any = declarative_base()
 
-# Association table for many-to-many relationship between users and diseases
+# Many-to-many association table for users and diseases
 user_diseases = Table(
     'user_diseases',
     Base.metadata,
@@ -31,56 +31,71 @@ class User(Base):
     username = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False,
+    )
 
     # Relationships
-    profile = relationship('UserProfile', back_populates='user', uselist=False)
+    profile = relationship(
+        'UserProfile',
+        back_populates='user',
+        uselist=False,
+        lazy='joined', )
     health_record = relationship(
-        'HealthRecord', back_populates='user', cascade='all, delete-orphan',
-    )
-    diseases = relationship('Disease', secondary=user_diseases, back_populates='users')
+        'HealthRecord',
+        back_populates='user',
+        cascade='all, delete-orphan', )
+    diseases = relationship(
+        'Disease',
+        secondary=user_diseases,
+        back_populates='users',
+        lazy='subquery', )
     user_medications = relationship(
-        'UserMedication', back_populates='user', cascade='all, delete-orphan',
-    )
+        'UserMedication',
+        back_populates='user',
+        cascade='all, delete-orphan', )
     health_media = relationship(
-        'HealthMedia', back_populates='user', cascade='all, delete-orphan',
-    )
+        'HealthMedia',
+        back_populates='user',
+        cascade='all, delete-orphan', )
     treatments = relationship(
-        'Treatments', back_populates='user',
-        cascade='all, delete-orphan',
-    )
+        'Treatments',
+        back_populates='user',
+        cascade='all, delete-orphan', )
     meal_logs = relationship(
-        'MealLog', back_populates='user',
-        cascade='all, delete-orphan',
-    )
+        'MealLog',
+        back_populates='user',
+        cascade='all, delete-orphan', )
     activity_logs = relationship(
-        'ActivityLog', back_populates='user',
-        cascade='all, delete-orphan',
-    )
+        'ActivityLog',
+        back_populates='user',
+        cascade='all, delete-orphan', )
     consents = relationship(
-        'Consents', back_populates='user',
+        'Consents',
+        back_populates='user',
         cascade='all, delete-orphan',
     )
     audit_log = relationship(
-        'AuditLog', back_populates='user',
-        cascade='all, delete-orphan',
-    )
+        'AuditLog',
+        back_populates='user',
+        cascade='all, delete-orphan', )
     lab_tests = relationship(
         'LabTest',
         back_populates='user',
-        cascade='all, delete-orphan',
-    )
+        cascade='all, delete-orphan', )
     doctor_visits = relationship(
         'DoctorVisits',
         back_populates='user',
-        cascade='all, delete-orphan',
-    )
+        cascade='all, delete-orphan', )
     mood_logs = relationship(
         'MoodLog',
         back_populates='user',
-        cascade='all, delete-orphan',
-    )
+        cascade='all, delete-orphan', )
     medical_history = relationship(
         'MedicalHistory',
         back_populates='user',
-        cascade='all, delete-orphan',
-    )
+        cascade='all, delete-orphan', )
