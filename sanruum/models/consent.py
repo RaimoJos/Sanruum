@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
+from sqlalchemy import Boolean
 from sqlalchemy import Column
 from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
@@ -14,13 +15,12 @@ from sqlalchemy.orm import relationship
 Base: Any = declarative_base()
 
 
-class Treatment(Base):
-    __tablename__ = 'treatments'
+class UserConsent(Base):
+    __tablename__ = 'user_consents'
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id'), index=True)
-    treatment_tyoe = Column(String)  # e.g., "surgery", "therapy", "lifestyle change"
-    description = Column(String)
-    start_date = Column(DateTime, default=datetime.utcnow)
-    end_date = Column(DateTime, nullable=True)
+    consent_type = Column(String)  # e.g., "data_sharing", "research_usage"
+    consent_given = Column(Boolean, default=False)
+    timestamp = Column(DateTime, default=datetime.utcnow)
 
-    user = relationship('User', back_populates='treatments')
+    user = relationship('User', back_populates='consents')

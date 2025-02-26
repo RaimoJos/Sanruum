@@ -14,13 +14,12 @@ from sqlalchemy.orm import relationship
 Base: Any = declarative_base()
 
 
-class Treatment(Base):
-    __tablename__ = 'treatments'
+class AuditLog(Base):
+    __tablename__ = 'audit_logs'
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey('users.id'), index=True)
-    treatment_tyoe = Column(String)  # e.g., "surgery", "therapy", "lifestyle change"
-    description = Column(String)
-    start_date = Column(DateTime, default=datetime.utcnow)
-    end_date = Column(DateTime, nullable=True)
+    user_id = Column(String, ForeignKey('users.id'), index=True)
+    action = Column(String)  # e.g., "update_profile", "log_health_record"
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    details = Column(String)  # JSON string or detailed
 
-    user = relationship('User', back_populates='treatments')
+    user = relationship('User', back_populates='audit_logs')

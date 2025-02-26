@@ -7,7 +7,7 @@ from sqlalchemy import Float
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
 Base: Any = declarative_base()
@@ -28,6 +28,12 @@ class UserProfile(Base):
     insulin_to_carb_ratio = Column(Float, default=10.0)
     correction_factor = Column(Float, default=2.0)
     target_bg = Column(Float, default=5.5)
+
+    # Carbs
+    meal_carb_range_low = Column(Integer, default=45)
+    meal_carb_range_high = Column(Integer, default=60)
+    snack_carb_range_low = Column(Integer, default=15)
+    snack_carb_range_high = Column(Integer, default=30)
 
     # Additional lifestyle preferences...(exercise frequency, dietary preferences, etc.)
 

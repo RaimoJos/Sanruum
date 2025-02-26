@@ -52,6 +52,10 @@ class User(Base):
         'MealLog', back_populates='user',
         cascade='all, delete-orphan',
     )
+    activity_logs = relationship(
+        'ActivityLog', back_populates='user',
+        cascade='all, delete-orphan',
+    )
     consents = relationship(
         'Consents', back_populates='user',
         cascade='all, delete-orphan',
