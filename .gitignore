@@ -141,3 +141,6 @@ sanruum/nlp/data/raw_data/*
 *.bak.*
 STATS.md
 *.mp3
+
+# Database
+data/sanruum.db
