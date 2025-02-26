@@ -64,7 +64,7 @@ warn_return_any = true
 follow_untyped_imports = true
 strict_optional = true
 warn_redundant_casts = true
-wanr_unused_configs = true
+warn_unused_configs = true
 
 [tool.black]
 line-length = 99
