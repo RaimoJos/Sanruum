@@ -64,7 +64,7 @@ warn_return_any = true
 follow_untyped_imports = true
 
 [tool.black]
-line-length = 88
+line-length = 99
 target-version = ['py311']
 
 [tool.pytest.ini_options]
