@@ -4,17 +4,21 @@ import sys
 import traceback
 
 from sanruum.ai_system import SanruumAI
+from sanruum.database.db import init_db
 from sanruum.utils.logger import logger
 
 
 def main() -> None:
     """Initialize and run the Sanruum AI system."""
     logger.info('Starting the Sanruum AI system...')  # Log when the system starts
+    # Initialize database
+    init_db()
     try:
         ai_system = SanruumAI()  # Create an instance of the AI system
         logger.info('Sanruum AI system initialized successfully.')
         ai_system.run()  # Run the AI system
         logger.info('Sanruum AI system is running.')
+
     except Exception as e:
         # Capture the full traceback for debugging
         logger.error(f'An error occurred while initializing the AI system: {e}')
