@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-from typing import Any
-
 from sqlalchemy.orm import Session
 
 from sanruum.database.db import SessionLocal
-from sanruum.users.repository import get_user
+from sanruum.database.repository import get_user
 from sanruum.utils.user_manager import UserManager
 
 # Instantiate (this could be done at a higher level in your application)
@@ -171,7 +169,7 @@ def insulin_calculation(
     # If user_id is provided, try to load personalized settings
     if user_id:
         db: Session = SessionLocal()
-        user: Any = get_user(db, int(user_id))
+        user = get_user(db, user_id)
         if user and user.profile:
             insulin_to_carb_ratio = user.profile.insulin_to_carb_ratio
             correction_factor = user.profile.correction_factor
