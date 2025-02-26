@@ -8,6 +8,12 @@ from fuzzywuzzy import process
 
 from sanruum.constants import INTENTS_FILE
 from sanruum.utils.logger import logger
+from sanruum.utils.tools import get_current_time
+
+DYNAMIC_INTENTS = {
+    'time': get_current_time,
+    # Add more dynamic intents here
+}
 
 
 def remove_initial_greeting(text: str) -> str:
@@ -38,7 +44,9 @@ class IntentHandler:
             logger.error(f'❌ Unexpected error loading Intents JSON: {e}')
             self.intents_data = []
 
-    def get_intent_response(self, user_input: str) -> dict[str, str] | str:
+    def get_intent_response(
+            self, user_input: str,
+    ) -> dict[str, str] | str:
         user_input = user_input.strip().lower()
         user_input = remove_initial_greeting(user_input)
         questions = [q.strip() for q in re.split(r'[,.?!]', user_input) if q.strip()]
@@ -58,14 +66,29 @@ class IntentHandler:
                         f"'{intent['name']}' (Score: {score})",
                     )
 
-                    response = intent.get('response')
-                    if isinstance(response, dict):  # Ensure correct return type
-                        return response
-                    elif isinstance(response, str):  # Ensure it's a string
-                        return response
+                    intent_name = intent.get('name')
 
-                    # If response is not found or invalid, return fallback
-                    return self.default_responses['fallback']
+                    # Handle dynamic intents
+                    if intent_name in DYNAMIC_INTENTS:
+                        dynamic_value = DYNAMIC_INTENTS[intent_name]()  # Call function
+                        response_templates = intent.get('response', {})
+
+                        if isinstance(response_templates, dict):
+                            chosen_response: str = response_templates.get(
+                                'friendly', response_templates.get(
+                                    list(response_templates.keys())[0],
+                                    self.default_responses['fallback'],
+                                ),
+                            )
+                            return chosen_response.format(time=dynamic_value)
+
+                        if isinstance(response_templates, str):
+                            return response_templates.format(time=dynamic_value)
+
+                    # Return normal static response
+                    response = intent.get('response')
+                    if isinstance(response, (str, dict)):
+                        return response
 
         logger.debug('❌ No matching intent found.')
         return self.default_responses['fallback']
