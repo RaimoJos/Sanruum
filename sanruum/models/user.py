@@ -64,3 +64,23 @@ class User(Base):
         'AuditLog', back_populates='user',
         cascade='all, delete-orphan',
     )
+    lab_tests = relationship(
+        'LabTest',
+        back_populates='user',
+        cascade='all, delete-orphan',
+    )
+    doctor_visits = relationship(
+        'DoctorVisits',
+        back_populates='user',
+        cascade='all, delete-orphan',
+    )
+    mood_logs = relationship(
+        'MoodLog',
+        back_populates='user',
+        cascade='all, delete-orphan',
+    )
+    medical_history = relationship(
+        'MedicalHistory',
+        back_populates='user',
+        cascade='all, delete-orphan',
+    )
