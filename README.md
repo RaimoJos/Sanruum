@@ -44,10 +44,6 @@ screenshots.*
 Contributions are welcome! Whether you’re a developer, a healthcare expert, or simply passionate about improving lives,
 please refer to our contributing guidelines for details on how to help.
 
-## License
-
-This project is licensed under the MIT License. *(Change as needed.)*
-
 ## Future Enhancements
 
 As development progresses, additional functionalities such as integration with smart home devices, advanced predictive
