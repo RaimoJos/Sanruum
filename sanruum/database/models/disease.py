@@ -8,7 +8,7 @@ from sqlalchemy import String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
-from sanruum.models.user import user_diseases
+from sanruum.database.models.user import user_diseases
 
 Base: Any = declarative_base()
 

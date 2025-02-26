@@ -29,8 +29,8 @@ MEMORY_FILE = os.path.join(DATA_DIR, 'ai_memory.json')
 LABEL_MAP_FILE = os.path.join(DATA_DIR, 'label_map.json')
 CUSTOM_SUB_CSV_FILE_PATH = os.path.join(DATA_DIR, 'custom_substitutions.csv')
 IGNORE_SPELLCHECK_WORD_FILE_PATH = os.path.join(DATA_DIR, 'ignore_spellcheck_words.txt')
-DATABASE_PATH = os.path.join(DATA_DIR, 'sanruum.db')
-#  Log directory
+DEFAULT_DB_URL = f"sqlite:///{os.path.join(DATA_DIR, 'sanruum.db')}"
+DATABASE_URL = os.getenv('DATABASE_URL', DEFAULT_DB_URL)  # Log directory
 LOG_DIR = os.path.join(BASE_DIR, 'logs')
 ensure_dir(LOG_DIR)
 LOG_FILE = os.path.join(LOG_DIR, 'sanruum.log')

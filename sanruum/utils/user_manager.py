@@ -4,7 +4,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from sanruum.database.db import SessionLocal
-from sanruum.models.user import User
+from sanruum.database.models.user import User
 from sanruum.utils.logger import logger
 
 
