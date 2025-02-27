@@ -88,7 +88,7 @@ class User(Base):
         back_populates='user',
         cascade='all, delete-orphan', )
     doctor_visits = relationship(
-        'DoctorVisits',
+        'DoctorVisit',
         back_populates='user',
         cascade='all, delete-orphan', )
     mood_logs = relationship(

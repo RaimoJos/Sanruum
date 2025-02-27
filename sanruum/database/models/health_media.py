@@ -15,7 +15,7 @@ Base: Any = declarative_base()
 
 
 class HealthMedia(Base):
-    tablename = 'health_media'
+    __tablename__ = 'health_media'
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id'), index=True)
     media_type = Column(String)  # e.g., "photo", "scan", "video"
