@@ -16,7 +16,8 @@ Base: Any = declarative_base()
 
 class DoctorVisit(Base):
     __tablename__ = 'doctor_visits'
-    id = Column(Integer, ForeignKey('users.id'), index=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey('users.id'), index=True)
     visit_date = Column(DateTime, default=datetime.utcnow)
     doctor_name = Column(String, nullable=True)
     diagnosis = Column(String, nullable=True)
