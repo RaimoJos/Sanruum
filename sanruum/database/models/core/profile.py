@@ -18,25 +18,17 @@ class UserProfile(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id'), index=True)
     age = Column(Integer)
-    weight = Column(Float)  # in kg
-    height = Column(Float)  # in cm
-    diabetes_type = Column(String)  # e.g., "Type 1", "Type 2", or None
-    goal = Column(String)  # e.g., "weight loss", "healthy lifestyle", etc
-
-    # Personalized settings for for diabetes management(if applicable)
+    weight = Column(Float)
+    height = Column(Float)
+    diabetes_type = Column(String)
+    goal = Column(String)
     insulin_to_carb_ratio = Column(Float, default=10.0)
     correction_factor = Column(Float, default=2.0)
     target_bg = Column(Float, default=5.5)
-
-    # User's preferred timezone (default set to Europe/Tallinn)
     timezone = Column(String, default='Europe/Tallinn')
-
-    # Carbs
     meal_carb_range_low = Column(Integer, default=45)
     meal_carb_range_high = Column(Integer, default=60)
     snack_carb_range_low = Column(Integer, default=15)
     snack_carb_range_high = Column(Integer, default=30)
-
-    # Additional lifestyle preferences...(exercise frequency, dietary preferences, etc.)
 
     user = relationship('User', back_populates='profile')

@@ -1,16 +1,24 @@
 from __future__ import annotations
 
+from typing import Any
+
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from sanruum.database.db import SessionLocal
-from sanruum.database.models.user import User
-from sanruum.utils.logger import logger
+from sanruum.database.core.db import SessionLocal
+from sanruum.database.models.core.user import User
+from sanruum.utils.base.logger import logger
 
 
 class UserManager:
     def __init__(self) -> None:
         self.db: Session = SessionLocal()
+
+    def __enter__(self) -> UserManager:
+        return self
+
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+        self.close()
 
     def get_user(self, user_id: int) -> User | None:
         """Fetch user by user_id."""
@@ -24,10 +32,18 @@ class UserManager:
         ).first()
         return found_user
 
-    def add_user(self, username: str) -> User | None:
+    def add_user(
+            self,
+            username: str,
+            email: str,
+            hashed_password: str,
+    ) -> User | None:
         """Create and add a new user."""
         try:
-            new_user = User(username=username)
+            new_user = User(
+                username=username, email=email,
+                hashed_password=hashed_password,
+            )
             with self.db.begin():
                 self.db.add(new_user)
                 self.db.flush()
@@ -76,12 +92,5 @@ class UserManager:
 
     def close(self) -> None:
         """Close database connection."""
-        self.db.close()
-
-
-# Add test user
-if __name__ == '__main__':
-    user_manager = UserManager()
-    user = user_manager.add_user('testuser')
-    if user:
-        print(f'User added: {user.id}')
+        if self.db.is_active:
+            self.db.close()
