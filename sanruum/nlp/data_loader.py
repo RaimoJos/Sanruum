@@ -9,7 +9,7 @@ import pandas as pd
 from sanruum.constants import LABEL_MAP_FILE
 from sanruum.constants import RAW_DATA_FILE
 from sanruum.nlp.utils.preprocessing import preprocess_text
-from sanruum.utils.logger import logger
+from sanruum.utils.base.logger import logger
 
 # Load label map
 try:

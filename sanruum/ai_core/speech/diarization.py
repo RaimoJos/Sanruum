@@ -6,7 +6,7 @@ from typing import Any
 
 from pyannote.audio import Pipeline
 
-from sanruum.utils.logger import logger
+from sanruum.utils.base.logger import logger
 
 
 class SpeakerDiarization:

@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 
 from sanruum.constants import INTENTS_FILE
-from sanruum.utils.logger import logger
+from sanruum.utils.base.logger import logger
 
 PERSONALITY_MODE = 'friendly'  # Options: "formal", "friendly", "professional"
 
