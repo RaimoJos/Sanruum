@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from typing import Any
 
 import joblib
@@ -20,32 +21,44 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 
-from sanruum.constants import BEST_LOG_REG_FILE
-from sanruum.constants import BEST_SVM_FILE
-from sanruum.constants import MODEL_DIR
-from sanruum.constants import RANDOM_FOREST_MODEL_FILE
-from sanruum.constants import RAW_DATA_FILE
+from sanruum.config import BaseConfig
+
+MODEL_DIR = BaseConfig.DATA_DIR / 'models'
+BEST_LOG_REG_FILE = MODEL_DIR / 'logistic_regression_model.pkl'
+BEST_SVM_FILE = MODEL_DIR / 'svm_model.pkl'
+RANDOM_FOREST_MODEL_FILE = MODEL_DIR / 'random_forest_model.pkl'
+RAW_DATA_FILE = BaseConfig.RAW_TEXT_DATA_DIR / 'raw_text_data.csv'
 
 matplotlib.use('Agg')
 
 
-def save_model(model: Any, filename: str) -> None:
+def save_model(model: Any, filename: str | Path) -> None:
     """Save model to disk with versioning."""
-    if not os.path.exists(MODEL_DIR):
-        os.makedirs(MODEL_DIR)
-    base_name, ext = os.path.splitext(filename)
+    if not MODEL_DIR.exists():
+        MODEL_DIR.mkdir(parents=True, exist_ok=True)
+
+    if isinstance(filename, Path):
+        base_name = filename.stem
+        ext = filename.suffix
+    else:
+        base_name, ext = os.path.splitext(filename)
+
     version = 1
-    while os.path.exists(os.path.join(MODEL_DIR, f'{base_name}_v{version}{ext}')):
+    while (MODEL_DIR / f'{base_name}_v{version}{ext}').exists():
         version += 1
-    filepath = os.path.join(MODEL_DIR, f'{base_name}_v{version}{ext}')
+    filepath = MODEL_DIR / f'{base_name}_v{version}{ext}'
     joblib.dump(model, filepath)
     print(f'Model saved to: {filepath}')
 
 
-def load_model(filename: str) -> Any | None:
+def load_model(filename: str | Path) -> Any | None:
     """Load model from disk."""
-    filepath = os.path.join(MODEL_DIR, filename)
-    if os.path.exists(filepath):
+    if isinstance(filename, Path):
+        filepath = filename
+    else:
+        filepath = MODEL_DIR / filename
+
+    if filepath.exists():
         try:
             return joblib.load(filepath)
         except Exception as e:
@@ -84,9 +97,9 @@ def evaluate_model(model: Any, X_test: Any, y_test: Any, model_name: str) -> Non
         plt.ylabel('Precision')
         plt.title(f'Precision-Recall Curve - {model_name}')
         plt.legend(loc='lower left')
-        pr_filename = os.path.join(MODEL_DIR, f'pr_curve_{model_name}.png')
-        plt.savefig(pr_filename)
-        print(f'PR curve saved: {pr_filename}')
+        pr_filepath = MODEL_DIR / f'pr_curve_{model_name}.png'
+        plt.savefig(pr_filepath)
+        print(f'PR curve saved: {pr_filepath}')
         plt.close()
 
 
