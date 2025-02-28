@@ -10,7 +10,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
 from sanruum.constants import MEMORY_FILE
-from sanruum.utils.logger import logger
+from sanruum.utils.base.logger import logger
 
 
 class AIMemory:

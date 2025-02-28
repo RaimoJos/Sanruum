@@ -9,7 +9,7 @@ import time
 import psutil
 
 from sanruum.constants import BASE_DIR
-from sanruum.utils.logger import logger
+from sanruum.utils.base.logger import logger
 
 
 class SanruumMonitor:

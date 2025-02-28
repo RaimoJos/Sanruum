@@ -4,8 +4,8 @@ import sys
 import traceback
 
 from sanruum.ai_system import SanruumAI
-from sanruum.database.db import init_db
-from sanruum.utils.logger import logger
+from sanruum.database.core.db import init_db
+from sanruum.utils.base.logger import logger
 
 
 def main() -> None:
