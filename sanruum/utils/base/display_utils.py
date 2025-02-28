@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from sanruum.utils.logger import logger
-from sanruum.utils.protocols import HealthRecordProtocol
-from sanruum.utils.protocols import UserProfileProtocol
-from sanruum.utils.time_utils import convert_utc_to_timezone
+from sanruum.ai_core.protocols.base import UserProfileProtocol
+from sanruum.ai_core.protocols.health import HealthRecordProtocol
+from sanruum.utils.base.logger import logger
+from sanruum.utils.base.time_utils import convert_utc_to_timezone
 
 
 def display_health_record(

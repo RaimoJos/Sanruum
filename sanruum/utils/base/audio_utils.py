@@ -5,7 +5,7 @@ from typing import cast
 import pyttsx3
 import speech_recognition as sr
 
-from sanruum.utils.logger import logger
+from sanruum.utils.base.logger import logger
 
 
 def listen(timeout: float = 5, microphone: sr.Microphone | None = None) -> str:
