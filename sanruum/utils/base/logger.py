@@ -10,10 +10,11 @@ from unittest.mock import MagicMock
 
 import colorlog
 
-from sanruum.constants import LOG_FILE
+from sanruum.config import BaseConfig
+from sanruum.config import ENV
 
 # Ensure log directory exists
-log_path = Path(LOG_FILE).parent
+log_path = Path(BaseConfig.LOG_FILE).parent
 log_path.mkdir(parents=True, exist_ok=True)
 
 # Ensure UTF-8 output without detaching
@@ -48,8 +49,19 @@ console_formatter = colorlog.ColoredFormatter(
 )
 console_handler.setFormatter(console_formatter)
 
+# Dynamically determine the log file path based on environment
+current_env = os.getenv('SANRUUM_ENV', ENV)
+if current_env == 'development':
+    log_file = BaseConfig.LOG_DIR / 'sanruum_dev.log'
+elif current_env == 'production':
+    log_file = BaseConfig.LOG_DIR / 'sanruum_prod.log'
+elif current_env == 'testing':
+    log_file = BaseConfig.LOG_DIR / 'sanruum_test.log'
+else:
+    log_file = BaseConfig.LOG_FILE
+
 # File handler (detailed logs)
-file_handler = logging.FileHandler(LOG_FILE, mode='a', encoding='utf-8')
+file_handler = logging.FileHandler(log_file, mode='a', encoding='utf-8')
 file_formatter = logging.Formatter(LOG_FORMAT)
 file_handler.setFormatter(file_formatter)
 
@@ -67,11 +79,13 @@ logger.addHandler(file_handler)
 logger.propagate = False
 
 
+# logger.py
 def log_error_with_traceback(exception: Exception) -> None:
     """Log an error with a full traceback, making it clickable in PyCharm."""
     exc_type, exc_value, exc_tb = sys.exc_info()
 
     if exc_tb is not None:
+        # Include filename and line number in the log message
         filename = exc_tb.tb_frame.f_code.co_filename
         lineno = exc_tb.tb_lineno
         logger.error(
