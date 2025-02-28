@@ -7,8 +7,10 @@ from unittest.mock import patch
 
 import pytest
 
-from sanruum.constants import BASE_DIR
+from sanruum.config import BaseConfig
 from sanruum.monitor.monitor import SanruumMonitor
+
+BASE_DIR = str(BaseConfig.BASE_DIR)
 
 
 @pytest.fixture
