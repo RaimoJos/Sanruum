@@ -7,7 +7,9 @@ import pygame
 from pydub import AudioSegment
 from pydub.playback import play
 
-from sanruum.constants import OUTPUT_MP3_FILE
+from sanruum.config import BaseConfig
+
+OUTPUT_MP3_FILE = BaseConfig.DATA_DIR / 'output.mp3'
 
 
 def _play_audio_pygame(file_path: Any) -> None:
