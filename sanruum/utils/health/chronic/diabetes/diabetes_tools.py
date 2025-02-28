@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from sanruum.database.core.db import SessionLocal
 from sanruum.database.managers.user_manager import UserManager
-from sanruum.database.repository import get_user
+from sanruum.database.repository.repository import get_user
 
 # Instantiate (this could be done at a higher level in your application)
 user_manager = UserManager()
