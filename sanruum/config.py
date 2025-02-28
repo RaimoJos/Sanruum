@@ -23,6 +23,7 @@ class BaseConfig:
     PROCESSED_DATA_DIR = NLP_DATA_DIR / 'processed_data'
     MEMORY_DIR = DATA_DIR / 'memory'
     USER_MEMORY_DIR = MEMORY_DIR / 'user_memory'
+    MEMORY_FILE = USER_MEMORY_DIR / 'memory.json'
     INTENTS_DIR = DATA_DIR / 'intents'
     DB_URL = f"sqlite:///{DATA_DIR / 'sanruum.sqlite'}"
     LOG_FILE = LOG_DIR / 'sanruum.log'
