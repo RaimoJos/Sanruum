@@ -143,4 +143,5 @@ STATS.md
 *.mp3
 
 # Database
-data/sanruum.db
+*.sqlite3
+sanruum/database/migrations/
