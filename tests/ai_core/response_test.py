@@ -10,7 +10,7 @@ from pytest_mock import MockerFixture
 from sanruum.ai_core.memory import AIMemory
 from sanruum.ai_core.processor import AIProcessor
 from sanruum.ai_core.response import AIResponse
-from sanruum.intent_handler import IntentHandler
+from sanruum.intent_system.intent_handler import IntentHandler
 from sanruum.utils.base.logger import logger
 
 # Disable logger to prevent noise in test output
