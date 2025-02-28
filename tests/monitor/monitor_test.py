@@ -43,7 +43,7 @@ def test_run_subprocess_failure(monitor: SanruumMonitor) -> None:
     """Test if subprocess failure is handled correctly"""
     with patch('subprocess.run') as mock_run:
         mock_run.side_effect = subprocess.CalledProcessError(1, 'echo', 'Error')
-        with patch('sanruum.utils.logger.logger.error') as mock_error:
+        with patch('sanruum.utils.base.logger.logger.error') as mock_error:
             with pytest.raises(subprocess.CalledProcessError):
                 monitor.run_subprocess(['echo', 'fail'], 'Echo fail')
             mock_error.assert_called_with('🚨 Echo fail failed: Error')
@@ -56,7 +56,7 @@ def test_check_system_health(monitor: SanruumMonitor) -> None:
         patch('psutil.virtual_memory', return_value=MagicMock(percent=40)),
         patch('psutil.disk_usage', return_value=MagicMock(percent=30)),
     ):
-        with patch('sanruum.utils.logger.logger.info') as mock_info:
+        with patch('sanruum.utils.base.logger.logger.info') as mock_info:
             monitor.check_system_health()
             mock_info.assert_any_call('📊 CPU Usage: 50%')
             mock_info.assert_any_call('📊 Memory Usage: 40%')
@@ -82,7 +82,7 @@ def test_monitor(monitor: SanruumMonitor) -> None:
         patch('sanruum.monitor.monitor.SanruumMonitor.check_dependencies'),
         patch('sanruum.monitor.monitor.SanruumMonitor.check_system_health'),
         patch('sanruum.monitor.monitor.SanruumMonitor.run_tests'),
-        patch('sanruum.utils.logger.logger.info') as mock_info,
+        patch('sanruum.utils.base.logger.logger.info') as mock_info,
     ):
         monitor.monitor()
         mock_info.assert_any_call('✅ Monitoring completed successfully!')
