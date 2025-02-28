@@ -16,7 +16,12 @@ def detect_language(text: str | None) -> str:
         return 'unknown'
 
     try:
-        language = detect(text) if detect(text) else 'unknown'
+        # Ensure that detect returns a valid string or handle case where it might not
+        language: str | None = detect(text)
+        if not isinstance(language, str):
+            logger.warning('Language detection returned an unexpected value.')
+            return 'unknown'
+
         logger.info(f'Detected language: {language}')
         return language
     except Exception as e:
