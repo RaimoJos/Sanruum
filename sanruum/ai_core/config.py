@@ -1,15 +1,14 @@
-# sanruum\ai_core\config.py
 from __future__ import annotations
 
 import json
 
-from sanruum.constants import INTENTS_FILE
+from sanruum.config import BaseConfig  # Import BaseConfig
 from sanruum.utils.base.logger import logger
 
-PERSONALITY_MODE = 'friendly'  # Options: "formal", "friendly", "professional"
-
-# Constants for config
 DEFAULT_INTENTS: dict = {}
+
+# Access INTENTS_FILE through BaseConfig
+INTENTS_FILE = BaseConfig.INTENTS_DIR / 'intents.json'
 
 try:
     with open(INTENTS_FILE, encoding='utf-8') as f:
@@ -20,7 +19,7 @@ except json.JSONDecodeError as e:
     INTENTS = DEFAULT_INTENTS
 except FileNotFoundError as e:
     logger.warning(f'⚠️ Responses JSON Not Found: {e}')
-    RESPONSES = DEFAULT_INTENTS
+    INTENTS = DEFAULT_INTENTS
 except Exception as e:
     logger.error(f'❌ Unexpected Error: {e}')
-    RESPONSES = DEFAULT_INTENTS
+    INTENTS = DEFAULT_INTENTS
