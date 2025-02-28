@@ -11,7 +11,7 @@ from sanruum.ai_core.memory import AIMemory
 from sanruum.ai_core.processor import AIProcessor
 from sanruum.ai_core.response import AIResponse
 from sanruum.intent_handler import IntentHandler
-from sanruum.utils.logger import logger
+from sanruum.utils.base.logger import logger
 
 # Disable logger to prevent noise in test output
 logger.disabled = True
@@ -27,13 +27,11 @@ def ai_response() -> AIResponse:
     ai.intent_handler = MagicMock(spec=IntentHandler)
     ai.processor = MagicMock(spec=AIProcessor)
 
-    # Explicitly assign mocks to methods and cast them as MagicMock
-    ai.memory.find_relevant_knowledge = cast(MagicMock, MagicMock(return_value=None))
-    ai.memory.store_knowledge = cast(MagicMock, MagicMock())
+    # Assign mocks to methods
+    ai.memory.find_relevant_knowledge = MagicMock(return_value=None)
+    ai.memory.store_knowledge = MagicMock()
     ai.intent_handler.get_intent_response = MagicMock(return_value=None)
-    ai.processor.process_input = cast(
-        MagicMock, MagicMock(return_value='Processed response'),
-    )
+    ai.processor.process_input = MagicMock(return_value='Processed response')
 
     return ai
 
