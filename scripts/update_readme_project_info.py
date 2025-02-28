@@ -9,9 +9,9 @@ from typing import Any
 
 import pytz  # type: ignore
 
-from sanruum.constants import BASE_DIR
+from sanruum.config import BaseConfig
 
-README_FILE = os.path.join(BASE_DIR, 'STATS.md')
+README_FILE = os.path.join(BaseConfig.BASE_DIR, 'STATS.md')
 
 # Define the inactivity threshold in seconds (5 minutes)
 INACTIVITY_THRESHOLD = 5 * 60  # 5 minutes
@@ -60,7 +60,7 @@ def update_readme_with_project_info() -> None:
     global last_modified_time, time_spent_working, last_activity_time
 
     # Get project info and update README
-    project_info = get_project_info(BASE_DIR)
+    project_info = get_project_info(BaseConfig.BASE_DIR)
 
     total_size_mb = int(project_info['total_size']) / (1024 * 1024)
 
@@ -122,7 +122,7 @@ def monitor_for_changes() -> None:
         current_time = time.time()
 
         # Monitor file changes in the BASE_DIR
-        for root, dirs, files in os.walk(BASE_DIR):
+        for root, dirs, files in os.walk(BaseConfig.BASE_DIR):
             for file in files:
                 filepath = os.path.join(root, file)
                 file_modified_time = os.path.getmtime(filepath)
