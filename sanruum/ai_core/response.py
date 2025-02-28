@@ -4,11 +4,13 @@ import time
 import traceback
 
 from sanruum.ai_core.config import INTENTS
-from sanruum.ai_core.config import PERSONALITY_MODE
 from sanruum.ai_core.memory import AIMemory
 from sanruum.ai_core.processor import AIProcessor
-from sanruum.intent_handler import IntentHandler
+from sanruum.config import BaseConfig
+from sanruum.intent_system.intent_handler import IntentHandler
 from sanruum.utils.base.logger import logger
+
+PERSONALITY_MODE = BaseConfig.PERSONALITY_MODE
 
 
 def apply_personality(response: str, personality: str) -> str:
