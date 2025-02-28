@@ -4,7 +4,7 @@ from __future__ import annotations
 import speech_recognition as sr
 import whisper
 
-from sanruum.utils.logger import logger
+from sanruum.utils.base.logger import logger
 
 # Workaround for recognize_google issue
 try:
