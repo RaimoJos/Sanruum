@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import cast
-
 from langdetect import detect
 
 from sanruum.utils.base.logger import logger
@@ -18,7 +16,7 @@ def detect_language(text: str | None) -> str:
         return 'unknown'
 
     try:
-        language = cast(str, detect(text))
+        language = detect(text) if detect(text) else 'unknown'
         logger.info(f'Detected language: {language}')
         return language
     except Exception as e:
