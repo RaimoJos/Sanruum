@@ -4,8 +4,8 @@ from datetime import datetime
 from datetime import timezone
 from zoneinfo import ZoneInfo
 
-from sanruum.utils.time_utils import convert_timezone_to_utc
-from sanruum.utils.time_utils import convert_utc_to_timezone
+from sanruum.utils.base.time_utils import convert_timezone_to_utc
+from sanruum.utils.base.time_utils import convert_utc_to_timezone
 
 
 def test_convert_utc_to_timezone() -> None:
