@@ -6,8 +6,8 @@ from typing import TypeVar
 
 from sqlalchemy.orm import Session
 
-from sanruum.database.base import Base
-from sanruum.database.models.user import User
+from sanruum.database.core.base import Base
+from sanruum.database.models.core.user import User
 
 T = TypeVar('T', bound=Base)  # Generic Type for SQLAlchemy Models
 
