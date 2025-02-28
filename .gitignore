@@ -145,3 +145,4 @@ STATS.md
 # Database
 *.sqlite3
 sanruum/database/migrations/
+*.pkl
