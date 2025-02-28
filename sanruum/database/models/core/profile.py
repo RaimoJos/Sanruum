@@ -1,16 +1,13 @@
 from __future__ import annotations
 
-from typing import Any
-
 from sqlalchemy import Column
 from sqlalchemy import Float
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
-Base: Any = declarative_base()
+from sanruum.database.core.base import Base
 
 
 class UserProfile(Base):

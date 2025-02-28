@@ -1,16 +1,12 @@
 from __future__ import annotations
 
-from typing import Any
-
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
+from sanruum.database.core.base import Base
 from sanruum.database.models.core.user import user_diseases
-
-Base: Any = declarative_base()
 
 
 class Disease(Base):
