@@ -39,10 +39,10 @@ def test_listen_success(
     mock_recognizer.listen = mock_recognizer_listen
 
     with patch(
-            'sanruum.utils.audio_utils.sr.Recognizer',
+            'sanruum.utils.base.audio_utils.sr.Recognizer',
             return_value=mock_recognizer,
     ), patch(
-        'sanruum.utils.audio_utils.sr.Microphone',
+        'sanruum.utils.base.audio_utils.sr.Microphone',
         return_value=dummy_microphone,
     ):
         result = listen()
@@ -60,10 +60,10 @@ def test_listen_timeout(
     mock_recognizer.listen = mock_recognizer_listen
 
     with patch(
-            'sanruum.utils.audio_utils.sr.Recognizer',
+            'sanruum.utils.base.audio_utils.sr.Recognizer',
             return_value=mock_recognizer,
     ), patch(
-        'sanruum.utils.audio_utils.sr.Microphone',
+        'sanruum.utils.base.audio_utils.sr.Microphone',
         return_value=dummy_microphone,
     ):
         result = listen()
@@ -77,10 +77,10 @@ def test_listen_unknown_value(
     mock_recognizer.recognize_google.side_effect = sr.UnknownValueError
 
     with patch(
-            'sanruum.utils.audio_utils.sr.Recognizer',
+            'sanruum.utils.base.audio_utils.sr.Recognizer',
             return_value=mock_recognizer,
     ), patch(
-        'sanruum.utils.audio_utils.sr.Microphone',
+        'sanruum.utils.base.audio_utils.sr.Microphone',
         return_value=dummy_microphone,
     ):
         result = listen()
@@ -96,10 +96,10 @@ def test_listen_request_error(
     )  # Define inside test
 
     with patch(
-            'sanruum.utils.audio_utils.sr.Recognizer',
+            'sanruum.utils.base.audio_utils.sr.Recognizer',
             return_value=mock_recognizer,
     ), patch(
-        'sanruum.utils.audio_utils.sr.Microphone',
+        'sanruum.utils.base.audio_utils.sr.Microphone',
         return_value=dummy_microphone,
     ):
         result = listen()

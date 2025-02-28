@@ -49,7 +49,7 @@ def test_load_memory_valid(
     'json.load',
     side_effect=json.JSONDecodeError('Expecting property name', '', 0),
 )
-@mock.patch('sanruum.utils.logger.logger.error')
+@mock.patch('sanruum.utils.base.logger.logger.error')
 def test_load_memory_corrupted(
         mock_logger_error: MagicMock,
         mock_json_load: MagicMock,
