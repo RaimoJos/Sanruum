@@ -20,7 +20,7 @@ from nltk.tokenize import word_tokenize
 from spellchecker.spellchecker import SpellChecker
 
 from sanruum.constants import IGNORE_SPELLCHECK_WORD_FILE_PATH
-from sanruum.utils.logger import logger
+from sanruum.utils.base.logger import logger
 
 nltk.download('stopwords')
 
