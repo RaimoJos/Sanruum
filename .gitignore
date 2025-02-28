@@ -143,6 +143,7 @@ STATS.md
 *.mp3
 
 # Database
-*.sqlite3
+*.sqlite
 sanruum/database/migrations/
 *.pkl
+data/memory/user_memory/memory.json
