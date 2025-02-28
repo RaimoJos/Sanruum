@@ -3,12 +3,12 @@ from __future__ import annotations
 
 import os
 
-from sanruum.constants import BASE_DIR
+from sanruum.config import BaseConfig
 
 
 def add_filename_to_file(filepath: str) -> None:
     # Get the relative path from BASE_DIR
-    relative_path = os.path.relpath(filepath, BASE_DIR)
+    relative_path = os.path.relpath(filepath, str(BaseConfig.BASE_DIR))
 
     # Prepare the comment to be added
     new_comment = f'# {relative_path}\n'
@@ -46,4 +46,4 @@ def add_comments_to_all_python_files(base_dir: str) -> None:
 
 
 # Run the function to process all Python files in the specified directory
-add_comments_to_all_python_files(BASE_DIR)
+add_comments_to_all_python_files(str(BaseConfig.BASE_DIR))
