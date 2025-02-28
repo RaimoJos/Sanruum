@@ -11,7 +11,7 @@ from sanruum.ai_core.config import INTENTS
 from sanruum.ai_core.config import PERSONALITY_MODE
 from sanruum.ai_core.memory import AIMemory
 from sanruum.nlp.utils.preprocessing import preprocess_text
-from sanruum.utils.logger import logger
+from sanruum.utils.base.logger import logger
 
 # Initialize Device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

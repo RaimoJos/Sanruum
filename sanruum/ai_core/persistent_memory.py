@@ -6,7 +6,7 @@ import pickle
 
 from sanruum.ai_core.memory import AIMemory
 from sanruum.constants import USER_MEMORY_DIR
-from sanruum.utils.logger import logger
+from sanruum.utils.base.logger import logger
 
 
 class PersistentAIMemory(AIMemory):
