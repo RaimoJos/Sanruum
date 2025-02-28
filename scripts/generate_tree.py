@@ -5,7 +5,9 @@ import os
 import sys
 from pathlib import Path
 
-from sanruum.constants import BASE_DIR
+from sanruum.config import BaseConfig
+
+BASE_DIR = BaseConfig.BASE_DIR
 
 try:
     import pathspec

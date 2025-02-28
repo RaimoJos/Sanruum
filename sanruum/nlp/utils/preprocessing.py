@@ -19,8 +19,10 @@ from nltk.stem.snowball import PorterStemmer
 from nltk.tokenize import word_tokenize
 from spellchecker.spellchecker import SpellChecker
 
-from sanruum.constants import IGNORE_SPELLCHECK_WORD_FILE_PATH
+from sanruum.config import BaseConfig
 from sanruum.utils.base.logger import logger
+
+IGNORE_SPELLCHECK_WORD_FILE_PATH = BaseConfig.DATA_DIR / 'ignore_spellcheck_words.txt'
 
 nltk.download('stopwords')
 

@@ -9,7 +9,7 @@ import time
 from typing import TypedDict
 
 from sanruum.ai_core.response import AIResponse
-from sanruum.constants import SESSION_HISTORY_FILE
+from sanruum.config import BaseConfig
 from sanruum.nlp.utils.preprocessing import preprocess_text
 from sanruum.utils.base.audio_utils import listen
 from sanruum.utils.base.audio_utils import speak
@@ -17,6 +17,8 @@ from sanruum.utils.base.logger import logger
 from sanruum.utils.web.web_search import search_web
 
 history_lock = threading.Lock()
+
+SESSION_HISTORY_FILE = BaseConfig.SESSION_HISTORY_FILE
 
 
 class SessionStats(TypedDict):
