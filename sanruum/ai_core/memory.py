@@ -9,8 +9,10 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from sanruum.constants import MEMORY_FILE
+from sanruum.config import BaseConfig
 from sanruum.utils.base.logger import logger
+
+MEMORY_FILE = BaseConfig.MEMORY_FILE
 
 
 class AIMemory:
