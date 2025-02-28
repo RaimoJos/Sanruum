@@ -1,4 +1,4 @@
-artificial intelligence,also known as: AI
+Artificial intelligence,also known as: AI
 Last Updated: Feb 10, 2025 • Article History
 Key People: John M. Jumper Geoffrey Hinton Marvin Minsky Edward Albert Feigenbaum Allen Newell
 Related Topics: history of artificial intelligence (AI) computational aesthetics prompt engineering three laws of robotics generative AI
