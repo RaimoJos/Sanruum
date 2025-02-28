@@ -28,6 +28,7 @@ class BaseConfig:
     LOG_FILE = LOG_DIR / 'sanruum.log'
     INTENTS_FILE = DATA_DIR / 'intents.json'
     PERSONALITY_MODE = 'friendly'  # Options: "formal", "friendly", "professional"
+    SESSION_HISTORY_FILE = DATA_DIR / 'session_history.json'
 
     @classmethod
     def init_dirs(cls) -> None:
