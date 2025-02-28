@@ -4,7 +4,7 @@ from typing import cast
 
 from langdetect import detect
 
-from sanruum.utils.logger import logger
+from sanruum.utils.base.logger import logger
 
 
 def detect_language(text: str | None) -> str:

@@ -7,8 +7,8 @@ from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 
 from sanruum.constants import INTENTS_FILE
-from sanruum.utils.base_tools import get_current_time
-from sanruum.utils.logger import logger
+from sanruum.utils.base.base_tools import get_current_time
+from sanruum.utils.base.logger import logger
 
 DYNAMIC_INTENTS = {
     'time': get_current_time,
