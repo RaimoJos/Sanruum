@@ -7,9 +7,11 @@ from pathlib import Path
 
 import pandas as pd
 
-from sanruum.constants import LABEL_MAP_FILE
-from sanruum.constants import PROCESSED_FILE
-from sanruum.constants import RAW_DATA_FILE
+from sanruum.config import BaseConfig
+
+LABEL_MAP_FILE = BaseConfig.DATA_DIR / 'label_map.json'
+PROCESSED_FILE = BaseConfig.PROCESSED_DATA_DIR / 'processed_text_data.csv'
+RAW_DATA_FILE = BaseConfig.RAW_TEXT_DATA_DIR / 'raw_text_data.csv'
 
 # Ensure paths are correct
 PROCESSED_DATA_FILE = Path(PROCESSED_FILE)
