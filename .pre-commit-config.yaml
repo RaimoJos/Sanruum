@@ -23,7 +23,7 @@ repos:
     hooks:
       - id: add-trailing-comma
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.27.0
+    rev: v3.19.1
     hooks:
       - id: pyupgrade
         args:
@@ -33,7 +33,7 @@ repos:
     hooks:
       - id: autopep8
   - repo: https://github.com/PyCQA/flake8
-    rev: 7.1.1
+    rev: 7.1.2
     hooks:
       - id: flake8
   - repo: https://github.com/pre-commit/mirrors-mypy
