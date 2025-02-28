@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sanruum.utils.health.hydration_tools import calculate_hydration
+from sanruum.utils.health.general_health.hydration_tools import calculate_hydration
 
 
 def test_hydration_basic() -> None:
