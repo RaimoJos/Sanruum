@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from sanruum.utils.health_tools.diabetes_tools import calculate_blood_sugar_level
+from sanruum.utils.health.chronic.diabetes.diabetes_tools import \
+    (calculate_blood_sugar_level)
 
 
 def test_calculate_blood_sugar_level() -> None:

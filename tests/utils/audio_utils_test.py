@@ -6,7 +6,7 @@ from unittest.mock import patch
 import pytest
 import speech_recognition as sr
 
-from sanruum.utils.audio_utils import listen
+from sanruum.utils.base.audio_utils import listen
 
 
 @pytest.fixture
