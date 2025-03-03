@@ -3,6 +3,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 from typing import NewType
+from typing import Union
+
+from sqlalchemy import Engine
+from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 
 UserID = NewType('UserID', int)
 FoodID = NewType('FoodID', int)
@@ -25,6 +31,9 @@ BloodPressureValue = NewType('BloodPressureValue', int)  # mmHg
 
 DiabetesType = Literal['Type 1', 'Type2', None]
 GoalType = Literal['weight loss', 'healthy lifestyle', 'maintenance', None]
+
+ENGINE_TYPE = Union[Engine, AsyncEngine]
+SESSION_TYPE = Union[Session, AsyncSession]
 
 
 @dataclass
