@@ -9,7 +9,7 @@ from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy.orm import relationship
 
-from sanruum.database.core.base import Base
+from sanruum.database.core.db import Base
 
 
 class AuditLog(Base):
