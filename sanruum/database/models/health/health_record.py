@@ -10,7 +10,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy.orm import relationship
 
-from sanruum.database.core.base import Base
+from sanruum.database.core.db import Base
 
 
 def utcnow() -> datetime:
