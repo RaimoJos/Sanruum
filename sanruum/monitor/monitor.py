@@ -8,10 +8,10 @@ import time
 
 import psutil
 
-from sanruum.config import BaseConfig
+from sanruum.config import ProjectManager
 from sanruum.utils.base.logger import logger
 
-BASE_DIR = BaseConfig.BASE_DIR
+BASE_DIR = ProjectManager.BASE_DIR
 
 
 class SanruumMonitor:
