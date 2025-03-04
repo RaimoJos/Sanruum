@@ -8,8 +8,8 @@ from unittest.mock import patch
 
 import pytest
 
-from sanruum.utils.base.logger import log_error_with_traceback
 from sanruum.utils.base.logger import logger
+from sanruum.utils.base.logger import SanruumLogger
 
 
 # Test 1: Check if logger is set up correctly
@@ -30,13 +30,15 @@ def test_logger_setup() -> None:
         ('testing', 'sanruum_test.log'),
     ],
 )
+# Test Function
 def test_log_file_path(env: str, expected_log_file: str) -> None:
-    # Patch os.environ directly to simulate the SANRUUM_ENV variable
     with patch.dict('os.environ', {'SANRUUM_ENV': env}):
         import sanruum.utils.base.logger as logger_module
         importlib.reload(logger_module)
-        log_file = logger_module.file_handler.baseFilename
-        assert expected_log_file in log_file
+        from sanruum.config.base import BaseConfig
+
+        log_file = logger_module.SanruumLogger()._get_log_file_path(BaseConfig)
+        assert expected_log_file in str(log_file)
 
 
 # Test 3: Test error logging with exception
@@ -45,7 +47,8 @@ def test_log_error_with_traceback() -> Any:
         raise ValueError('Test exception')
     except ValueError as e:
         with patch('sanruum.utils.base.logger.logger.error') as mock_error:
-            log_error_with_traceback(e)
+            sanruum_logger = SanruumLogger()
+            sanruum_logger.log_error_with_traceback(e)
             # Get the actual call arguments
             mock_error.assert_called_once()
             args, kwargs = mock_error.call_args

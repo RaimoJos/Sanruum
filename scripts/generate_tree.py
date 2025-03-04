@@ -5,9 +5,9 @@ import os
 import sys
 from pathlib import Path
 
-from sanruum.config import BaseConfig
+from sanruum.config import ProjectManager
 
-BASE_DIR = BaseConfig.BASE_DIR
+BASE_DIR = ProjectManager.BASE_DIR
 
 try:
     import pathspec
