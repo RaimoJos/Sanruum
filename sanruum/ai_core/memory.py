@@ -9,7 +9,7 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from sanruum.config import BaseConfig
+from sanruum.config.base import BaseConfig
 from sanruum.utils.base.logger import logger
 
 MEMORY_FILE = BaseConfig.MEMORY_FILE
