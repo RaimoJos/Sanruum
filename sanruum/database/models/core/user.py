@@ -10,7 +10,7 @@ from sqlalchemy import String
 from sqlalchemy import Table
 from sqlalchemy.orm import relationship
 
-from sanruum.database.core.db import Base
+from sanruum.database.models.core.base import Base
 
 # Many-to-many association table for users and diseases
 user_diseases = Table(
