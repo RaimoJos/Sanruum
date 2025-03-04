@@ -7,7 +7,7 @@ import torch
 from transformers import pipeline
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-from sanruum.ai_core.config import INTENTS
+from sanruum.ai_core.ai_config import INTENTS
 from sanruum.ai_core.memory import AIMemory
 from sanruum.config import BaseConfig
 from sanruum.nlp.utils.preprocessing import preprocess_text
