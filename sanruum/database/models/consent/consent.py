@@ -10,7 +10,7 @@ from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy.orm import relationship
 
-from sanruum.database.core.db import Base
+from sanruum.database.models.core.base import Base
 
 
 class UserConsent(Base):
@@ -21,4 +21,4 @@ class UserConsent(Base):
     consent_given = Column(Boolean, default=False)
     timestamp = Column(DateTime, default=datetime.utcnow)
 
-    user = relationship('User', back_populates='consents')
+    user = relationship('User', back_populates='user_consents')
