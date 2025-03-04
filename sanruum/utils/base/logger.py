@@ -1,103 +1,107 @@
-# sanruum/utils/logger.py
 from __future__ import annotations
 
-import io
 import logging
 import os
 import sys
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
+from types import TracebackType
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
 
-import colorlog
+from rich.console import Console
+from rich.logging import RichHandler
 
-from sanruum.config import BaseConfig
-from sanruum.config import ENV
+if TYPE_CHECKING:
+    from sanruum.config.base import BaseConfig
 
-# Ensure log directory exists
-log_path = Path(BaseConfig.LOG_FILE).parent
-log_path.mkdir(parents=True, exist_ok=True)
-
-# Ensure UTF-8 output without detaching
-if sys.stdout.encoding is not None and sys.stdout.encoding.lower() != 'utf-8':
-    sys.stdout = io.TextIOWrapper(
-        sys.stdout.buffer,
-        encoding='utf-8',
-        errors='replace',
-    )
-
-# Log format
-LOG_FORMAT = (
-    '%(asctime)s - [%(levelname)s] - %(message)s '
-    '- File: %(filename)s - Line: %(lineno)d'
-)
-COLOR_FORMAT = (
-    '%(log_color)s%(asctime)s - [%(levelname)s] '
-    '- %(message)s%(reset)s - File: %(filename)s - Line: %(lineno)d'
-)
-
-# Console handler (colored)
-console_handler = logging.StreamHandler(sys.stdout)
-console_formatter = colorlog.ColoredFormatter(
-    COLOR_FORMAT,
-    log_colors={
-        'DEBUG': 'cyan',
-        'INFO': 'green',
-        'WARNING': 'yellow',
-        'ERROR': 'red',
-        'CRITICAL': 'bold_red',
-    },
-)
-console_handler.setFormatter(console_formatter)
-
-# Dynamically determine the log file path based on environment
-current_env = os.getenv('SANRUUM_ENV', ENV)
-if current_env == 'development':
-    log_file = BaseConfig.LOG_DIR / 'sanruum_dev.log'
-elif current_env == 'production':
-    log_file = BaseConfig.LOG_DIR / 'sanruum_prod.log'
-elif current_env == 'testing':
-    log_file = BaseConfig.LOG_DIR / 'sanruum_test.log'
-else:
-    log_file = BaseConfig.LOG_FILE
-
-# File handler (detailed logs)
-file_handler = logging.FileHandler(log_file, mode='a', encoding='utf-8')
-file_formatter = logging.Formatter(LOG_FORMAT)
-file_handler.setFormatter(file_formatter)
-
-# Logger setup
-logger = logging.getLogger('sanruum')
-
-# Use an environment variable for logging level (default to DEBUG)
-log_level = os.getenv('SANRUUM_LOG_LEVEL', 'DEBUG').upper()
-logger.setLevel(getattr(logging, log_level, logging.DEBUG))
-
-logger.addHandler(console_handler)
-logger.addHandler(file_handler)
-
-# Prevent duplicate log entries if imported multiple times
-logger.propagate = False
+console = Console()
 
 
-# logger.py
-def log_error_with_traceback(exception: Exception) -> None:
-    """Log an error with a full traceback, making it clickable in PyCharm."""
-    exc_type, exc_value, exc_tb = sys.exc_info()
+class SanruumLogger:
+    _instance: SanruumLogger | None = None
 
-    if exc_tb is not None:
-        # Include filename and line number in the log message
-        filename = exc_tb.tb_frame.f_code.co_filename
-        lineno = exc_tb.tb_lineno
-        logger.error(
-            f'An error occurred: {exception} - File: {filename} - Line: {lineno}',
-            exc_info=True,
+    def __new__(cls, *args: object, **kwargs: object) -> SanruumLogger:
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._init_logger()
+        return cls._instance
+
+    def _init_logger(self) -> None:
+        from sanruum.config.base import BaseConfig
+        self.logger = logging.getLogger('sanruum')
+        self.logger.setLevel(self._get_log_level())
+        self.logger.propagate = False
+
+        if not self.logger.hasHandlers():
+            self._setup_console_handler()
+            self._setup_file_handler(BaseConfig)
+
+        sys.excepthook = self.log_uncaught_exceptions
+
+    def _setup_console_handler(self) -> None:
+        console_handler = RichHandler(console=console, show_time=True, show_path=True)
+        self.logger.addHandler(console_handler)
+
+    def _setup_file_handler(self, config_class: type[BaseConfig]) -> None:
+        log_file = self._get_log_file_path(config_class)
+        log_path = Path(log_file).parent
+        log_path.mkdir(parents=True, exist_ok=True)
+
+        file_handler = RotatingFileHandler(
+            log_file, maxBytes=5_000_000, backupCount=3, encoding='utf-8',
         )
-    else:
-        logger.error(f'An error occurred: {exception}')
+        file_formatter = logging.Formatter(
+            '%(asctime)s - [%(levelname)s] - %(message)s - '
+            'File: %(filename)s - Line: %(lineno)d',
+        )
+        file_handler.setFormatter(file_formatter)
+        self.logger.addHandler(file_handler)
+
+    @staticmethod
+    def _get_log_file_path(config_class: type[BaseConfig]) -> Path:
+        env = os.getenv('SANRUUM_ENV', 'development').lower()
+        if env == 'production':
+            return config_class.LOG_DIR / 'sanruum_prod.log'
+        elif env == 'testing':
+            return config_class.LOG_DIR / 'sanruum_test.log'
+        return config_class.LOG_DIR / 'sanruum_dev.log'
+
+    @staticmethod
+    def _get_log_level() -> int:
+        log_level = os.getenv('SANRUUM_LOG_LEVEL', 'DEBUG').upper()
+        return getattr(logging, log_level, logging.DEBUG)
+
+    def log_uncaught_exceptions(
+            self,
+            exc_type: type[BaseException],
+            exc_value: BaseException,
+            exc_traceback: TracebackType | None,
+    ) -> None:
+        if issubclass(exc_type, KeyboardInterrupt):
+            sys.__excepthook__(exc_type, exc_value, exc_traceback)
+            return
+        self.logger.critical(
+            'Uncaught Exception', exc_info=(
+                exc_type, exc_value, exc_traceback,
+            ),
+        )
+
+    def log_error_with_traceback(self, exception: Exception) -> None:
+        exc_type, exc_value, exc_tb = sys.exc_info()
+        if exc_tb is not None:
+            filename = exc_tb.tb_frame.f_code.co_filename
+            lineno = exc_tb.tb_lineno
+            self.logger.error(
+                f'An error occurred: {exception} - File: {filename} - Line: {lineno}',
+                exc_info=True,
+            )
+        else:
+            self.logger.error(f'An error occurred: {exception}')
 
 
-# When running tests, override logger.warning and logger.error with MagicMock objects.
-# This checks both for the PYTEST_CURRENT_TEST env var and whether pytest is imported.
+logger = SanruumLogger().logger
+
 if 'PYTEST_CURRENT_TEST' in os.environ or 'pytest' in sys.modules:
     setattr(logger, 'warning', MagicMock())
     setattr(logger, 'error', MagicMock())
