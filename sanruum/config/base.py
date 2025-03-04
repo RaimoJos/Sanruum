@@ -7,14 +7,38 @@ from sanruum.config.project import ProjectDirectories
 
 
 class BaseConfig:
+    ENV_CHOICES = ['development', 'testing', 'production']
+
+    @classmethod
+    def is_production(cls) -> bool:
+        return cls.get_env() == 'production'
+
+    @classmethod
+    def is_testing(cls) -> bool:
+        return cls.get_env() == 'testing'
+
     directories = ProjectDirectories(Path(__file__).resolve().parent.parent.parent)
     directories.init_dirs()
-    ENV = os.getenv('SANRUUM_ENV', 'development').lower()
 
-    LOG_DIR = directories.LOG_DIR
-    LOG_FILE = LOG_DIR / f'sanruum_{ENV}.log'
+    _env: str = os.getenv('SANRUUM_ENV', 'development').lower()
 
-    DATA_DIR = directories.DATA_DIR
+    @classmethod
+    def get_env(cls) -> str:
+        return cls._env
+
+    @classmethod
+    def set_env(cls, env: str) -> None:
+        env = env.lower()
+        if env not in cls.ENV_CHOICES:
+            raise ValueError(f'Invalid environment: {env}')
+        cls._env = env
+        cls.LOG_FILE = cls.LOG_DIR / f'sanruum_{cls._env}.log'
+        from sanruum.utils.base.logger import logger
+        logger.info(f'Environment switched to: {env}')
+
+    LOG_DIR: Path = directories.LOG_DIR
+    LOG_FILE: Path = LOG_DIR / f'sanruum_{_env}.log'
+    DATA_DIR: Path = directories.DATA_DIR
 
     DB_URL = f"sqlite:///{DATA_DIR / 'sanruum.db'}"
     INTENTS_FILE = directories.INTENTS_DIR / 'intents.json'
@@ -24,15 +48,9 @@ class BaseConfig:
 
     PERSONALITY_MODE = 'friendly'  # Options: "formal", "friendly", "professional"
 
-    @classmethod
-    def reload(cls) -> None:
-        cls.directories = ProjectDirectories(
+    def reload(self) -> None:
+        self.directories = ProjectDirectories(
             Path(__file__).resolve().parent.parent.parent,
         )
-        cls.directories.init_dirs()
-        cls.ENV = os.getenv('SANRUUM_ENV', 'development').lower()
-        cls.LOG_FILE = cls.LOG_DIR / f'sanruum_{cls.ENV}.log'
-
-# Utility functions
-# def is_production() -> bool:
-#     return BaseConfig.ENV == 'production'
+        self.directories.init_dirs()
+        self.set_env(os.getenv('SANRUUM_ENV', 'development'))

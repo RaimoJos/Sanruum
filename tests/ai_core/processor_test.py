@@ -85,7 +85,7 @@ def test_process_input_sentiment_positive(
         lambda x: [],
     )  # Mock intents (none)
     monkeypatch.setattr(
-        'sanruum.ai_core.config.BaseConfig.PERSONALITY_MODE',
+        'sanruum.config.base.BaseConfig.PERSONALITY_MODE',
         'neutral',
     )  # Mock the personality mode
     response = processor.process_input("I'm happy with the service!")
@@ -104,7 +104,7 @@ def test_process_input_sentiment_negative(
         lambda x: [],
     )  # Mock intents (none)
     monkeypatch.setattr(
-        'sanruum.ai_core.config.BaseConfig.PERSONALITY_MODE',
+        'sanruum.config.base.BaseConfig.PERSONALITY_MODE',
         'neutral',
     )  # Mock the personality mode
     response = processor.process_input("I'm not happy at all.")
