@@ -5,6 +5,10 @@ import sys
 from fastapi import FastAPI
 
 from sanruum.ai_system import SanruumAI
+from sanruum.app.routes import router as api_router
+from sanruum.config.app import HOST
+from sanruum.config.app import PORT
+from sanruum.database.core.db import init_db
 from sanruum.utils.base.logger import logger
 
 app = FastAPI()
@@ -28,5 +32,17 @@ def main() -> None:
 
 
 if __name__ == '__main__':
+    import uvicorn
+    from threading import Thread
+
+    # Initialize the database first.
+    init_db()
+
+    # Include the API routes before starting the server.
+    app.include_router(api_router)
+
+    # Run the AI system in a separate daemon thread.
+    Thread(target=main, daemon=True).start()
+
     logger.info('Sanruum AI System Ready 🚀')
-    main()
+    uvicorn.run(app, host=HOST, port=PORT)
