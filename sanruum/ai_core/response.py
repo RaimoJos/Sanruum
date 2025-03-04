@@ -3,7 +3,7 @@ from __future__ import annotations
 import time
 import traceback
 
-from sanruum.ai_core.config import INTENTS
+from sanruum.ai_core.ai_config import INTENTS
 from sanruum.ai_core.memory import AIMemory
 from sanruum.ai_core.processor import AIProcessor
 from sanruum.config import BaseConfig
