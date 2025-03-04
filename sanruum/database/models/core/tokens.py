@@ -16,6 +16,7 @@ class Tokens(Base):
     name = Column(Text, unique=True)
     token = Column(Text)
 
-    def __init__(self, name: Any, token: Any) -> None:
+    def __init__(self, name: Any, token: Any, **kw: Any) -> None:
+        super().__init__(**kw)
         self.name = name
         self.token = token
