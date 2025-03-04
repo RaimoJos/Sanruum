@@ -1,13 +1,7 @@
 from __future__ import annotations
 
-from sqlalchemy.orm import Session
-
-from sanruum.database.core.db import SessionLocal
-from sanruum.database.managers.user_manager import UserManager
-from sanruum.database.repository.repository import get_user
 
 # Instantiate (this could be done at a higher level in your application)
-user_manager = UserManager()
 
 
 def calculate_blood_sugar_level(
@@ -53,16 +47,6 @@ def carb_counting(
     recommended_meal_low, recommended_meal_high = 45, 60
     recommended_snack_low, recommended_snack_high = 15, 30
 
-    # Override with user-specific data if available
-    if user_id is not None:
-        user = user_manager.get_user(user_id)
-        if user:
-            recommended_meal_low, recommended_meal_high = user.get(
-                'meal_carb_range', (45, 60),
-            )
-            recommended_snack_low, recommended_snack_high = user.get(
-                'snack_carb_range', (15, 30),
-            )
     if meal_type == 'meal':
         if carb_intake <= recommended_meal_low:
             return (
@@ -165,16 +149,6 @@ def insulin_calculation(
         raise ValueError(
             'Insulin to carb ratio and correction factor must be positive.',
         )
-
-    # If user_id is provided, try to load personalized settings
-    if user_id:
-        db: Session = SessionLocal()
-        user = get_user(db, user_id)
-        if user and user.profile:
-            insulin_to_carb_ratio = user.profile.insulin_to_carb_ratio
-            correction_factor = user.profile.correction_factor
-            target_bg = user.profile.target_bg
-        db.close()
 
     # Meal bolus calculation
     meal_bolus = carb_intake / insulin_to_carb_ratio
@@ -412,16 +386,6 @@ def diet_recommendations(
 
     # If user_id is provided, you could adjust the recommendation based on user
     # dietary preferences.
-    if user_id:
-        user = user_manager.get_user(user_id)
-        if user:
-            # For example, if user has a known preference or a prescribed diet,
-            # incorporate that. This is illustrative; real logic would use more
-            # detailed user dietary data.
-            recommendation += (
-                '(Personalized dietary adjustments have been applied based'
-                ' on your profile.)'
-            )
 
     return recommendation
 
@@ -436,11 +400,6 @@ def medication_reminder(
     """
     # If user_id is provided, override the default medication_schedule with
     # the user's data
-    if user_id:
-        user = user_manager.get_user(user_id)
-        # Make sure medication_schedule exists
-        if user and hasattr(user, 'medication_schedule'):
-            medication_schedule = user.medication_schedule or {}
 
     # For now, simply return a summary of the provided schedule.
     if not medication_schedule:
@@ -503,13 +462,6 @@ def glucose_level_predictor(
         predicted_glucose -= 1.0
     elif 'sedentary' in act:
         predicted_glucose += 0.5
-
-    # Use user-specific adjustments if available
-    if user_id:
-        user = user_manager.get_user(user_id)
-        if user:
-            # Example: adjust prediction if user's target_bg is different
-            predicted_glucose = (predicted_glucose + user.target_bg) / 2
 
     return round(predicted_glucose, 2)
 
@@ -733,26 +685,8 @@ def get_hba1c_trend(
     """
 
     # Ensure user_id is not None before attempting to fetch user data
-    if user_id is None:
-        return 'User ID is required to retrieve HbA1c data.'
 
-    readings = user_manager.get_user(user_id)
-
-    if readings is None:
-        return 'Not enough HbA1c data to analyze trend.'
-
-    # Compare the first and last reading to determine the trend
-    first_reading = readings[0]
-    latest_reading = readings[-1]
-
-    if latest_reading < first_reading:
-        trend = 'improving'
-    elif latest_reading > first_reading:
-        trend = 'worsening'
-    else:
-        trend = 'stable'
-
-    return f'Your HbA1c trend is {trend} based on your recent readings.'
+    return 'Your HbA1c trend is '' based on your recent readings.'
 
 
 def log_blood_sugar(
