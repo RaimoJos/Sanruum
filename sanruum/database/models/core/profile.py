@@ -7,7 +7,7 @@ from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy.orm import relationship
 
-from sanruum.database.core.db import Base
+from sanruum.database.models.core.base import Base
 
 
 class UserProfile(Base):
@@ -28,4 +28,4 @@ class UserProfile(Base):
     snack_carb_range_low = Column(Integer, default=15)
     snack_carb_range_high = Column(Integer, default=30)
 
-    user = relationship('User', back_populates='profile')
+    user = relationship('User', back_populates='user_profiles')
