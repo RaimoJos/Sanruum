@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import json
+import logging
 
-from sanruum.config import BaseConfig  # Import BaseConfig
-from sanruum.utils.base.logger import logger
+from sanruum.config import BaseConfig
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_INTENTS: dict = {}
 
