@@ -10,7 +10,7 @@ from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy.orm import relationship
 
-from sanruum.database.core.db import Base
+from sanruum.database.models.core.base import Base
 
 
 class FoodItem(Base):
@@ -27,7 +27,7 @@ class FoodItem(Base):
 class MealLog(Base):
     __tablename__ = 'meal_logs'
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey('user.id'), nullable=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=True)
     timestamp = Column(DateTime, default=datetime.utcnow)
     meal_type = Column(String)  # breakfast, lunch, dinner, snack
     total_calories = Column(Float, nullable=True)
