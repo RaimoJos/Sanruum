@@ -7,10 +7,10 @@ from unittest.mock import patch
 
 import pytest
 
-from sanruum.config import BaseConfig
+from sanruum.config import ProjectManager
 from sanruum.monitor.monitor import SanruumMonitor
 
-BASE_DIR = str(BaseConfig.BASE_DIR)
+BASE_DIR = str(ProjectManager.BASE_DIR)
 
 
 @pytest.fixture
